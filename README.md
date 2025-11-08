@@ -55,11 +55,11 @@
 
 ---
 
-🧠 향후 계획
-	-	File → SQLite(Room) 전환
-	-	Android UI(ViewModel + Compose) 구현
-	-	UI 테스트 및 통합 테스트 추가
-	-	다크 모드 / 백업 기능 지원
+- 🧠 향후 계획
+  -	File → SQLite(Room) 전환
+  -	Android UI(ViewModel + Compose) 구현
+  -	UI 테스트 및 통합 테스트 추가
+  -	다크 모드 / 백업 기능 지원
 
 ---
 
@@ -67,44 +67,44 @@
 │
 ├── Application.kt                   # 애플리케이션의 의존성 설정 및 주입을 담당하는 메인 클래스 (콘솔용)
 │
-├── domain                           1. 도메인 계층 (Domain Layer) - 가장 핵심적인 비즈니스 로직
-│   ├── model                        # 순수한 데이터 모델 (엔티티, 값 객체)
+├── domain/                          1. 도메인 계층 (Domain Layer) - 가장 핵심적인 비즈니스 로직
+│   ├── model/                       # 순수한 데이터 모델 (엔티티, 값 객체)
 │   │   ├── Diary.kt                 # 다이어리 엔티티
 │   │   └── User.kt                  # 사용자 엔티티
-│   └── repository                   # 데이터 영속성을 위한 인터페이스 (추상화)
+│   └── repository/                  # 데이터 영속성을 위한 인터페이스 (추상화)
 │       ├── DiaryRepository.kt       # 다이어리 레포지토리 인터페이스
 │       └── UserRepository.kt        # 사용자 레포지토리 인터페이스
 │
-├── application                      2. 애플리케이션 계층 (Application Layer) - 유스케이스
-│   ├── usecase                      # 사용자의 상호작용을 바탕으로 비즈니스 흐름을 조율
+├── application/                     2. 애플리케이션 계층 (Application Layer) - 유스케이스
+│   ├── usecase/                     # 사용자의 상호작용을 바탕으로 비즈니스 흐름을 조율
 │   │   ├── DiaryUseCase.kt          # 다이어리 관련 유스케이스 인터페이스
 │   │   ├── DiaryUseCaseImpl.kt      # 다이어리 유스케이스 구현체
 │   │   ├── UserUseCase.kt           # 사용자 관련 유스케이스 인터페이스
 │   │   └── UserUseCaseImpl.kt       # 사용자 유스케이스 구현체
-│   └── validator                    # 입력값 검증 로직
+│   └── validator/                   # 입력값 검증 로직
 │       ├── DiaryValidator.kt
 │       └── InputValidator.kt
 │
-├── data                             3. 데이터 계층 (Data Layer) - 데이터 영속성 구현
-│   └── repository                   # 도메인 계층의 리포지토리 인터페이스에 대한 실제 구현
+├── data/                            3. 데이터 계층 (Data Layer) - 데이터 영속성 구현
+│   └── repository/                  # 도메인 계층의 리포지토리 인터페이스에 대한 실제 구현
 │       ├── DiaryRepositoryImpl.kt   # 파일 시스템을 이용한 다이어리 레포지토리 구현체
 │       └── UserRepositoryImpl.kt    # 파일 시스템을 이용한 사용자 레포지토리 구현체
 │
-├── presentation                     4. 프레젠테이션 계층 (Presentation Layer) - UI 로직 (MVVM)
-│   ├── view                         # View: 사용자에게 보여지는 부분 (콘솔 입출력)
+├── presentation/                    4. 프레젠테이션 계층 (Presentation Layer) - UI 로직 (MVVM)
+│   ├── view/                        # View: 사용자에게 보여지는 부분 (콘솔 입출력)
 │   │   └── ConsoleView.kt
-│   ├── viewmodel                    # ViewModel: View의 상태를 관리하고 UseCase와 통신
+│   ├── viewmodel/                   # ViewModel: View의 상태를 관리하고 UseCase와 통신
 │   │   ├── DiaryViewModel.kt
 │   │   ├── DiaryViewModelImpl.kt
 │   │   ├── UserViewModel.kt
 │   │   └── UserViewModelImpl.kt
 │   └── ConsoleMain.kt               # 애플리케이션의 시작점 및 View의 역할을 하는 메인 클래스 (콘솔용)
 │
-├── dto                              # 계층 간 데이터 전송을 위한 객체
+├── dto/                             # 계층 간 데이터 전송을 위한 객체
 │   ├── DiaryDto.kt
 │   └── UserDto.kt
 │
-└── port                             # 외부 시스템과의 통신을 위한 인터페이스
+└── port/                            # 외부 시스템과의 통신을 위한 인터페이스
     └── InputPort.kt                 # 콘솔 입력을 받기 위한 인터페이스
 
 
