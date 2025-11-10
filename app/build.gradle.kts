@@ -40,6 +40,9 @@ android {
 }
 
 dependencies {
+    // 비밀번호 해싱
+    implementation("org.mindrot:jbcrypt:0.4")
+
     // ✅ Compose BOM: 버전 자동 동기화
     val composeBom = platform("androidx.compose:compose-bom:2024.02.00")
     implementation(composeBom)
