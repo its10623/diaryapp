@@ -11,7 +11,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -20,10 +19,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.diaryapp.R
 import com.example.diaryapp.presentation.ui.theme.BackGround
+import com.example.diaryapp.presentation.ui.theme.LogoTextStyle
 import com.example.diaryapp.presentation.ui.theme.PrimaryAccent
 import kotlinx.coroutines.delay
 
@@ -57,7 +58,7 @@ fun SplashScreen(onSplashFinished: () -> Unit) {
                 Text(
                     text = "모노",
                     textAlign = TextAlign.Start,
-                    style = MaterialTheme.typography.bodyLarge.copy(
+                    style = LogoTextStyle.copy(
                         fontWeight = FontWeight.ExtraBold,
                         fontSize = 55.sp
                     ),
@@ -66,7 +67,7 @@ fun SplashScreen(onSplashFinished: () -> Unit) {
                 Text(
                     text = "다이어리",
                     textAlign = TextAlign.Start,
-                    style = MaterialTheme.typography.bodyLarge.copy(
+                    style = LogoTextStyle.copy(
                         fontWeight = FontWeight.ExtraBold,
                         fontSize = 55.sp
                     ),

@@ -4,6 +4,7 @@ import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.core.view.WindowCompat
 import com.example.diaryapp.presentation.ui.screen.SplashScreen
 import com.example.diaryapp.presentation.ui.theme.DiaryAppTheme
 
@@ -20,6 +21,9 @@ class SplashActivity : ComponentActivity() {
                 })
             }
         }
+        WindowCompat.getInsetsController(
+            window, window.decorView
+        ).isAppearanceLightStatusBars = true
     }
 }
 
