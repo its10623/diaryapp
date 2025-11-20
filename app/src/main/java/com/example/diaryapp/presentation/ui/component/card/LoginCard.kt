@@ -1,6 +1,5 @@
-package com.example.diaryapp.presentation.ui.component
+package com.example.diaryapp.presentation.ui.component.card
 
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -18,8 +17,6 @@ import com.example.diaryapp.presentation.ui.theme.Card
 
 @Composable
 fun LoginCard(
-    modifier: Modifier = Modifier,
-    backgroundColor: Color = Card,
     content: @Composable () -> Unit
 ) {
     Box(
@@ -38,7 +35,7 @@ fun LoginCard(
             Column(
                 modifier = Modifier
                     .padding(top = 16.dp,
-                        bottom = 22.dp,         // 아래 패딩을 좀더 줘서 대칭맞춤
+                        bottom = 16.dp,
                         start = 16.dp,
                         end = 16.dp),
 

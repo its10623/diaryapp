@@ -45,10 +45,10 @@ fun SplashScreen(onSplashFinished: () -> Unit) {
             horizontalArrangement = Arrangement.Center
         ) {
             Image(
-                painter = painterResource(R.drawable.my_splash_logo),
+                painter = painterResource(R.drawable.notebook_6343437),
                 contentDescription = "앱 로고",
                 modifier = Modifier
-                    .size(130.dp)
+                    .size(116.dp)
                     .padding(end = 1.dp)
             )
             Column(
