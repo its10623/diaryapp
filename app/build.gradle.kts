@@ -37,42 +37,39 @@ android {
     buildFeatures {
         compose = true
     }
+    // Compose 관련 추가 설정
+    composeOptions {
+        kotlinCompilerExtensionVersion = "1.5.15"
+    }
 }
 
 dependencies {
     // 비밀번호 해싱
     implementation("org.mindrot:jbcrypt:0.4")
 
-    // ✅ Compose BOM: 버전 자동 동기화
-    val composeBom = platform("androidx.compose:compose-bom:2024.02.00")
-    implementation(composeBom)
-    androidTestImplementation(composeBom)
-
-    // ✅ Compose 핵심 UI 구성요소
-    implementation("androidx.activity:activity-compose:1.8.2") // Compose를 Activity에서 쓰게 함
-    implementation("androidx.compose.ui:ui") // 기본 UI 요소 (Text, Button 등)
-    implementation("androidx.compose.material3:material3") // 최신 Material 디자인 컴포넌트
-    implementation("androidx.compose.ui:ui-tooling-preview") // @Preview 미리보기 지원
-
-    // ✅ 디버깅 / 미리보기용
-    debugImplementation("androidx.compose.ui:ui-tooling")
-    debugImplementation("androidx.compose.ui:ui-test-manifest")
-
-    // ✅ Lifecycle, 코루틴 등 유틸
-    implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.6.2")
-    implementation(libs.androidx.core.ktx)
-    implementation(libs.androidx.lifecycle.runtime.ktx)
-    implementation(libs.androidx.activity.compose)
+    // Compose BOM: 버전 자동 동기화
     implementation(platform(libs.androidx.compose.bom))
+    androidTestImplementation(platform(libs.androidx.compose.bom))
+
+    // Compose 핵심 UI 구성요소 (relying on libs aliases)
+    implementation(libs.androidx.activity.compose)
     implementation(libs.androidx.ui)
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
+    implementation("com.google.android.material:material:1.12.0")
+    implementation("androidx.core:core-splashscreen:1.0.1")
+    implementation("androidx.navigation:navigation-compose:2.7.7")
+    // 디버깅 / 미리보기용
+    debugImplementation(libs.androidx.ui.tooling)
+    debugImplementation(libs.androidx.ui.test.manifest)
+
+    // Lifecycle, 코루틴 등 유틸
+    implementation(libs.androidx.core.ktx)
+    implementation(libs.androidx.lifecycle.runtime.ktx)
+
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
-    androidTestImplementation(platform(libs.androidx.compose.bom))
     androidTestImplementation(libs.androidx.ui.test.junit4)
-    debugImplementation(libs.androidx.ui.tooling)
-    debugImplementation(libs.androidx.ui.test.manifest)
 }
