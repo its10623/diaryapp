@@ -1,45 +1,45 @@
 package com.example.diaryapp.data.repository
 
+import com.example.diaryapp.data.local.dataStore.UserLocalDataSource
 import com.example.diaryapp.domain.model.User
 import com.example.diaryapp.domain.repository.UserRepository
-import com.example.diaryapp.presentation.FakeContext
+import javax.inject.Inject
+import kotlinx.coroutines.flow.Flow
 import org.mindrot.jbcrypt.BCrypt
-import java.io.File
 
-class UserRepositoryImpl(private val context: FakeContext) : UserRepository {
+class UserRepositoryImpl @Inject constructor(
+    private val local: UserLocalDataSource
+) : UserRepository {
 
-    private val userDir = File(context.filesDir, "users")
+    override suspend fun findUser(userName: String): User? =
+        local.findUser(userName)
 
-    init {
-        if (!userDir.exists()) userDir.mkdirs()
+    override fun getAllUsers(): Flow<List<User>> =
+        local.getAllUsers()
+
+    override suspend fun register(userName: String, password: String): Boolean {
+        val hash = BCrypt.hashpw(password, BCrypt.gensalt())
+        local.register(User(userName = userName, password =  hash))
+        return true
     }
 
-    override fun loadUser(name: String): User? {
-        val file = File(userDir, "${name}.txt")
-
-        if (!file.exists()) return null
-
-        val password = file.readText()
-        return User(name = name, password = password)
+    override suspend fun login(userName: String, password: String): Boolean {
+        val user = local.findUser(userName) ?: return false
+        return BCrypt.checkpw(password, user.password)
     }
 
-    override fun saveUser(user: User) {
-        val file = File(userDir, "${user.name}.txt")
-        val hashPassword = encryptPassword(user.password)
-        file.writeText(hashPassword)
-    }
+    override fun getAutoLogin(): Flow<Boolean> =
+        local.getAutoLogin()
 
-    override fun deleteUser(name: String): Boolean {
-        val file = File(userDir, "${name}.txt")
-        return file.delete()
-    }
+    override suspend fun setAutoLogin(value: Boolean) =
+        local.saveAutoLogin(value)
 
-    override fun isUserExists(name: String): Boolean {
-        val file = File(userDir, "${name}.txt")
-        return file.exists()
-    }
+    override suspend fun updatePassword(userName: String, newPassword: String): Boolean {
+        val user = findUser(userName) ?: return false
+        val newHash = BCrypt.hashpw(newPassword, BCrypt.gensalt())
+        val updateUser = user.copy(password = newHash)
 
-    private fun encryptPassword(rawPassword: String): String {
-        return BCrypt.hashpw(rawPassword, BCrypt.gensalt())
+        local.updateUser(updateUser)
+        return true
     }
 }

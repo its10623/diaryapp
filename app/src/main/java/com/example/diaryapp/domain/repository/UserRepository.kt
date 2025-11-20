@@ -1,10 +1,14 @@
 package com.example.diaryapp.domain.repository
 
 import com.example.diaryapp.domain.model.User
+import kotlinx.coroutines.flow.Flow
 
 interface UserRepository {
-    fun loadUser(name: String): User?
-    fun saveUser(user: User)
-    fun deleteUser(name: String): Boolean
-    fun isUserExists(name: String): Boolean
+    suspend fun findUser(userName: String): User?
+    fun getAllUsers(): Flow<List<User>>
+    suspend fun register(userName: String, password: String): Boolean
+    suspend fun login(userName: String, password: String): Boolean
+    fun getAutoLogin(): Flow<Boolean>
+    suspend fun setAutoLogin(value: Boolean)
+    suspend fun updatePassword(userName: String, newPassword: String): Boolean
 }
