@@ -17,6 +17,8 @@ import com.example.diaryapp.presentation.ui.theme.Card
 
 @Composable
 fun LoginCard(
+    modifier: Modifier = Modifier,
+    backgroundColor: Color = Card,
     content: @Composable () -> Unit
 ) {
     Box(
