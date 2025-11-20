@@ -1,32 +1,38 @@
-package com.example.diaryapp.presentation.view
+package com.example.diaryapp
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.activity.enableEdgeToEdge
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Scaffold
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
-import com.example.diaryapp.presentation.theme.DiaryAppTheme
+import androidx.core.view.WindowCompat
+import androidx.compose.foundation.layout.statusBarsPadding
+import com.example.diaryapp.presentation.ui.navigation.AppNavigation
+import com.example.diaryapp.presentation.ui.theme.DiaryAppTheme
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
-        setContent {
-            DiaryAppTheme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    Greeting(
-                        name = "일기장 ✏\uFE0F",
-                        modifier = Modifier.padding(innerPadding)
-                    )
+            setContent {
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .statusBarsPadding()
+                        .navigationBarsPadding()
+                ) {
+                         AppNavigation()
+
                 }
             }
-        }
+
+        WindowCompat.getInsetsController(
+            window, window.decorView
+        ).isAppearanceLightStatusBars = true
     }
 }
 
