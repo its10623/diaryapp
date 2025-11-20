@@ -2,6 +2,9 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
+    alias(libs.plugins.ksp)
+    alias(libs.plugins.hilt.android)
+    kotlin("kapt")
 }
 
 android {
@@ -44,6 +47,22 @@ android {
 }
 
 dependencies {
+    // Room
+    implementation(libs.room.runtime)
+    implementation(libs.room.ktx)
+    ksp(libs.room.compiler)
+
+    // Hilt
+    implementation(libs.hilt.android)
+    kapt(libs.hilt.android.compiler)
+
+    // Hilt + Navigation Compose
+    implementation(libs.hilt.navigation.compose)
+
+    // DataStore - Preferences 기반
+    implementation(libs.datastore.preferences)
+
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.2")
     // 비밀번호 해싱
     implementation("org.mindrot:jbcrypt:0.4")
 
