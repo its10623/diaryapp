@@ -1,0 +1,90 @@
+package com.example.diaryapp.presentation.viewmodel
+
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.example.diaryapp.application.usecase.user.RegisterUseCase
+import dagger.hilt.android.lifecycle.HiltViewModel
+import jakarta.inject.Inject
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
+
+@HiltViewModel
+class RegisterViewModel @Inject constructor(
+    private val registerUseCase: RegisterUseCase
+) : ViewModel() {
+
+    var uiState by mutableStateOf(RegisterUiState())
+        private set
+
+    private val _event = MutableSharedFlow<RegisterUiEvent>()
+    val event = _event.asSharedFlow()
+
+    fun onIdChange(value: String) {
+        uiState = uiState.copy(id = value, idError = null)
+    }
+
+    fun onPwChange(value: String) {
+        uiState = uiState.copy(pw = value, pwError = null)
+    }
+
+    fun onConfirmPwChange(value: String) {
+        uiState = uiState.copy(confirmPw = value, confirmPwError = null)
+    }
+
+    fun register() {
+        viewModelScope.launch {
+            uiState = uiState.copy(isLoading = true)
+
+            val result = registerUseCase(
+                uiState.id,
+                uiState.pw,
+                uiState.confirmPw
+            )
+
+            uiState = uiState.copy(isLoading = false)
+
+            when (result) {
+
+                is RegisterResult.Success -> {
+                    uiState = uiState.copy(isLoading = false)
+                    _event.emit(RegisterUiEvent.Success)
+                }
+
+                is RegisterResult.Fail -> {
+                    uiState = uiState.copy(isLoading = false)
+
+                    // 🔥 필드 오류에 매핑
+                    applyFieldError(result.message)
+
+                    // 🔥 스낵바 or Toast로도 보여주고 싶으면 event
+                    _event.emit(RegisterUiEvent.Fail(result.message))
+                }
+            }
+        }
+    }
+    private fun applyFieldError(msg: String) {
+        when {
+            "아이디" in msg -> uiState = uiState.copy(idError = msg)
+            "비밀번호" in msg && "확인" !in msg -> uiState = uiState.copy(pwError = msg)
+            "일치" in msg -> uiState = uiState.copy(confirmPwError = msg)
+        }
+    }
+}
+
+sealed class RegisterResult {
+    object Success : RegisterResult()
+    data class Fail(val message: String) : RegisterResult()
+}
+
+sealed class RegisterUiEvent {
+    object Success : RegisterUiEvent()
+    data class Fail(val message: String) : RegisterUiEvent()
+}
+
