@@ -14,7 +14,6 @@ import com.example.diaryapp.presentation.ui.theme.PrimaryAccent
 @Composable
 fun TextOnlyButton(
     text: String,
-    color: Color = PrimaryAccent,
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
