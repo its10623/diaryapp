@@ -1,16 +1,35 @@
 package com.example.diaryapp.di
 
 import android.content.Context
+import androidx.room.Room
+import com.example.diaryapp.data.local.room.DiaryDao
+import com.example.diaryapp.data.local.room.DiaryDatabase
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
-import jakarta.inject.Singleton
+import javax.inject.Singleton
 
 @Module
 @InstallIn(SingletonComponent::class)
 object DataStoreModule {
+
+    @Provides
+    @Singleton
+    fun provideDiaryDatabase(
+        @ApplicationContext context: Context
+    ): DiaryDatabase =
+        Room.databaseBuilder(
+            context,
+            DiaryDatabase::class.java,
+            "diary_db"
+        ).fallbackToDestructiveMigration().build()
+
+    @Provides
+    fun provideDiaryDao(
+        db: DiaryDatabase
+    ): DiaryDao = db.diaryDao()
 
     @Provides
     @Singleton
