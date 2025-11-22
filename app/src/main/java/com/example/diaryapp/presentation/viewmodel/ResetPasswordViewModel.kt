@@ -8,7 +8,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.diaryapp.application.usecase.user.FindPasswordUseCase
 import com.example.diaryapp.application.usecase.user.ResetPasswordResult
 import dagger.hilt.android.lifecycle.HiltViewModel
-import jakarta.inject.Inject
+import javax.inject.Inject
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
@@ -24,12 +24,12 @@ class ResetPasswordViewModel @Inject constructor(
     private val _event = MutableSharedFlow<ResetPasswordUiEvent>()
     val event = _event.asSharedFlow()
 
-    fun onIdChange(value: String) {
-        uiState = uiState.copy(userId = value)
+    fun initUserId(userName: String) {
+        uiState = uiState.copy(userId = userName, pwError = null)
     }
 
     fun onPwChange(value: String) {
-        uiState = uiState.copy(newPw = value)
+        uiState = uiState.copy(newPw = value, confirmPwError = null)
     }
 
     fun onConfirmPwChange(value: String) {
@@ -37,6 +37,26 @@ class ResetPasswordViewModel @Inject constructor(
     }
 
     fun resetPassword() {
+        val pw = uiState.newPw
+        val cpw = uiState.confirmPw
+
+        if (pw.length !in 8..16) {
+            uiState = uiState.copy(pwError = "비밀번호는 8~16자여야 합니다.")
+            return
+        }
+
+        if (!pw.any { it.isDigit() } ||
+            !pw.any { it.isLetter() } ||
+            !pw.any { !it.isLetterOrDigit() }) {
+
+            uiState = uiState.copy(pwError = "영문, 숫자, 특수문자를 포함해야 합니다.")
+            return
+        }
+
+        if (pw != cpw) {
+            uiState = uiState.copy(confirmPwError = "비밀번호가 일치하지 않습니다.")
+            return
+        }
         viewModelScope.launch {
             uiState = uiState.copy(isLoading = true)
 
@@ -63,7 +83,9 @@ data class ResetPasswordUiState(
     val userId: String = "",
     val newPw: String = "",
     val confirmPw: String = "",
-    val isLoading: Boolean = false
+    val isLoading: Boolean = false,
+    val pwError: String? = null,
+    val confirmPwError: String? = null,
 )
 
 sealed class ResetPasswordUiEvent {

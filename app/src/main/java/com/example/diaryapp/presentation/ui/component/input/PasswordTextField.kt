@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextFieldDefaults
@@ -28,6 +29,8 @@ fun PasswordTextField(
     value: String,
     onValueChange: (String) -> Unit,
     label: String,
+    isError: Boolean = false,
+    errorMessage: String? = null,
     modifier: Modifier = Modifier
 ) {
     val focusManager = LocalFocusManager.current
@@ -45,6 +48,7 @@ fun PasswordTextField(
                 style = TextHintStyle
             )
         },
+        isError = isError,
         modifier = Modifier
             .fillMaxWidth()
             .padding(vertical = 6.dp),
@@ -63,7 +67,15 @@ fun PasswordTextField(
             focusedContainerColor = Color.Transparent,
             unfocusedContainerColor = Color.Transparent,
             disabledContainerColor = Color.Transparent,
-            errorContainerColor = ErrorColor
+            errorContainerColor = Color.Transparent,
+            errorCursorColor = ErrorColor,
         )
     )
+    if (isError && errorMessage != null) {
+        Text(
+            text = errorMessage,
+            color = ErrorColor,
+            style = MaterialTheme.typography.labelSmall
+        )
+    }
 }

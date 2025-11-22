@@ -23,22 +23,25 @@ import com.example.diaryapp.presentation.ui.component.button.BackButton
 import com.example.diaryapp.presentation.ui.component.button.LoginButton
 import com.example.diaryapp.presentation.ui.theme.BackGround
 import com.example.diaryapp.presentation.ui.theme.DiaryAppTheme
+import com.example.diaryapp.presentation.ui.theme.ErrorColor
 import com.example.diaryapp.presentation.ui.theme.Jua
 import com.example.diaryapp.presentation.ui.theme.PrimaryAccent
+import com.example.diaryapp.presentation.viewmodel.ResetPasswordUiState
 
 @Composable
-fun ChangePasswordScreen(
+fun ResetPasswordScreen(
     newPassword: String,
     onPasswordChange: (String) -> Unit,
     confirmPassword: String,
     onConfirmPasswordChane: (String) -> Unit,
     onClick: () -> Unit,
-    onBackClick: () -> Unit
+    onBackClick: () -> Unit,
+    uiState: ResetPasswordUiState
 ) {
 
     val focusManager = LocalFocusManager.current
 
-    DiaryAppTheme() {
+    DiaryAppTheme {
         Box(
             Modifier
                 .fillMaxSize()
@@ -92,39 +95,55 @@ fun ChangePasswordScreen(
                     PasswordTextField(
                         value = newPassword,
                         onValueChange = { onPasswordChange(it) },
-                        label = "새 비밀번호"
+                        label = "새 비밀번호",
+                        isError = uiState.pwError != null,
                     )
                     Box(
                         modifier = Modifier
                             .padding(bottom = 8.dp)
                             .fillMaxWidth()
                     ) {
-                        Text(
-                            text = "• 비밀번호는 8~16자, 숫자/영문/특수문자 포함",
-                            modifier = Modifier.align(Alignment.BottomStart)
-                        )
+                        if(uiState.pwError != null){
+                            Text(
+                                text = "• ${uiState.pwError}",
+                                color = ErrorColor,
+                                modifier = Modifier.align(Alignment.BottomStart)
+                            )
+                        } else {
+                            Text(
+                                text = "• 비밀번호는 8~16자, 숫자/영문/특수문자 포함",
+                                modifier = Modifier.align(Alignment.BottomStart)
+                            )
+                        }
                     }
                     PasswordTextField(
                         value = confirmPassword,
                         onValueChange = { onConfirmPasswordChane(it) },
-                        label = "새 비밀번호 확인"
+                        label = "새 비밀번호 확인",
+                        isError = uiState.confirmPwError != null,
                     )
                     Box(
                         modifier = Modifier
                             .padding(bottom = 16.dp)
                             .fillMaxWidth()
                     ) {
-                        Text(
-                            text = "• 비밀번호를 한번 더 입력해주세요",
-                            modifier = Modifier.align(Alignment.BottomStart)
-                        )
+                        if(uiState.confirmPwError != null){
+                            Text(
+                                text = "• ${uiState.confirmPwError}",
+                                color = ErrorColor,
+                                modifier = Modifier.align(Alignment.BottomStart)
+                            )
+                        } else {
+                            Text(
+                                text = "• 비밀번호를 한번 더 입력해주세요",
+                                modifier = Modifier.align(Alignment.BottomStart)
+                            )
+                        }
                     }
                     LoginButton(
                         text = "비밀번호 변경",
-                        onClick = {
-                                // TODO 비밀번호 변경 완료
-                        },
-                        enabled = newPassword.isNotBlank() && confirmPassword.isNotBlank()
+                        onClick = onClick,
+                        enabled = !uiState.isLoading
                     )
                 }
             }
