@@ -29,14 +29,6 @@ object UserKeys {
 class UserLocalDataSource @Inject constructor(
     private val context: Context
 ) {
-    suspend fun saveUserId(id: String) {
-        context.settingsDataStore.edit { prefs ->
-            prefs[UserKeys.USER_ID] = id
-        }
-    }
-
-    fun getSavedUserId(): Flow<String?> =
-        context.settingsDataStore.data.map { it[UserKeys.USER_ID] }
 
     fun getAllUsers(): Flow<List<User>> =
         context.usersDataStore.data
@@ -49,6 +41,21 @@ class UserLocalDataSource @Inject constructor(
             users + user
         }
     }
+    suspend fun updateUser(updated: User) {
+        context.usersDataStore.updateData { users ->
+            users.map { if (it.userName == updated.userName) updated else it}
+        }
+    }
+
+    suspend fun saveUserId(id: String) {
+        context.settingsDataStore.edit { prefs ->
+            prefs[UserKeys.USER_ID] = id
+        }
+    }
+
+    fun getSavedUserId(): Flow<String?> =
+        context.settingsDataStore.data.map { it[UserKeys.USER_ID] }
+
     fun getPasswordHash(): Flow<String?> =
         context.settingsDataStore.data.map {
             it[UserKeys.PASSWORD_HASH]
@@ -60,7 +67,7 @@ class UserLocalDataSource @Inject constructor(
         }
     }
     fun getAutoLogin(): Flow<Boolean> =
-        context.userDataStore.data.map { prefs ->
+        context.settingsDataStore.data.map { prefs ->
             prefs[UserKeys.AUTO_LOGIN] ?: false
         }
     suspend fun saveAutoLogin(value: Boolean) {
@@ -68,12 +75,12 @@ class UserLocalDataSource @Inject constructor(
             prefs[UserKeys.AUTO_LOGIN] = value
         }
     }
-    suspend fun clearAll() {
-        context.userDataStore.edit { it.clear() }
+
+    suspend fun clearSettings() {
+        context.settingsDataStore.edit { it.clear() }
     }
-    suspend fun updateUser(updated: User) {
-        context.usersDataStore.updateData { users ->
-            users.map { if (it.userName == updated.userName) updated else it}
-        }
+    suspend fun clearAllUsers() {
+        context.usersDataStore.updateData { emptyList() }
     }
+
 }
