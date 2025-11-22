@@ -1,29 +1,13 @@
 package com.example.diaryapp.dto
 
-import com.example.diaryapp.domain.model.Diary
+import java.util.Date
 
 data class DiaryDto(
-    val id: Long? = null,
-    val name: String,
-    val date: String? = null,
+    val id: Int = 0,
+    val userName: String,
+    val folder: String?,
     val title: String,
-    val content: String
+    val content: String,
+    val createDate: Date,
+    val updateDate: Date
 )
-
-fun Diary.toDiaryDto(): DiaryDto {
-    return DiaryDto(
-        this.id,
-        this.name,
-        this.date,
-        this.title,
-        this.content
-    )
-}
-
-fun DiaryDto.toDiary(): Diary {
-    return Diary(
-        name = this.name,
-        title = this.title,
-        content = this.content
-    )
-}
