@@ -1,8 +1,6 @@
 package com.example.diaryapp.application.usecase.user
 
 import com.example.diaryapp.domain.repository.UserRepository
-import com.example.diaryapp.dto.UserDto
-import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 
 class LoginUseCase @Inject constructor(
