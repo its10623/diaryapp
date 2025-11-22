@@ -1,139 +1,64 @@
 package com.example.diaryapp.data.repository
 
-import com.example.diaryapp.domain.model.Diary
+import com.example.diaryapp.data.local.room.DiaryDao
+import com.example.diaryapp.data.mapper.toDto
+import com.example.diaryapp.data.mapper.toEntity
 import com.example.diaryapp.domain.repository.DiaryRepository
-import com.example.diaryapp.presentation.FakeContext
-import java.io.File
-import kotlin.String
+import com.example.diaryapp.dto.DiaryDto
+import javax.inject.Inject
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 
-class DiaryRepositoryImpl(
-    private val context: FakeContext
+class DiaryRepositoryImpl @Inject constructor(
+    private val diaryDao: DiaryDao
 ) : DiaryRepository {
 
-    private val diaryDir = File(context.filesDir, "diaries")
-
-    init {
-        if (!diaryDir.exists()) diaryDir.mkdirs()
-    }
-
-    override fun saveDiary(diary: Diary) {
-        val userDir = File(diaryDir, diary.name)
-        if (!userDir.exists()) userDir.mkdirs()
-
-        val uniqueFilenameTitle = makeUniqueTitle(userDir, diary.title)
-
-        val userDiary = File(userDir, "${uniqueFilenameTitle}.txt")
-        userDiary.writeText("${diary.date}\n${uniqueFilenameTitle}\n${diary.content}\n")
-    }
-
-    override fun updateDiary(oldTitle: String, updatedDiary: Diary) {
-        val userDir = File(diaryDir, updatedDiary.name)
-        if (!userDir.exists()) return
-
-        val oldFile = userDir.listFiles { file -> file.extension == "txt" && file.nameWithoutExtension == oldTitle }
-            ?.firstOrNull()
-
-        if (oldFile != null && oldFile.exists()) {
-            oldFile.delete()
-        } else {
-            throw NoSuchElementException("수정할 일기($oldTitle)를 찾을 수 없습니다.")
+    override fun getDiaryById(id: Int): Flow<DiaryDto?> =
+        diaryDao.getDiaryById(id).map { entity ->
+            entity?.toDto()
         }
 
-        saveDiary(updatedDiary)
+    override suspend fun insertDiary(diary: DiaryDto) {
+        diaryDao.insertDiary(diary.toEntity())
     }
 
-    fun makeUniqueTitle(userDir: File, title: String): String {
-        var newTitle = title
-        var counter = 1
+    override suspend fun updateDiary(diary: DiaryDto) {
+        diaryDao.updateDiary(diary.toEntity())
+    }
 
-        while (File(userDir, "$newTitle.txt").exists()) {
-            newTitle = "$title ($counter)"
-            counter++
+    override suspend fun deleteDiary(id: Int) {
+        diaryDao.deleteDiary(id)
+    }
+
+    override fun getDiariesByUser(userName: String): Flow<List<DiaryDto>> =
+        diaryDao.getDiariesByUser(userName).map { entities ->
+            entities.map { it.toDto() }
         }
-        return newTitle
-    }
 
-    override fun deleteDiary(name: String, title: String) {
-        val file = File(File(diaryDir, name), "$title.txt")
-        if (file.exists()) file.delete()
-    }
+    override fun getDiariesByFolder(userName: String, folder: String): Flow<List<DiaryDto>> =
+        diaryDao.getDiariesByFolder(userName, folder).map { entities ->
+            entities.map { it.toDto() }
+        }
 
-    override fun findDiariesByUser(name: String): List<Diary> {
-        val userDir = File(diaryDir, name)
-        if (!userDir.exists()) return emptyList()
+    override fun getFolders(userName: String): Flow<List<String>> =
+        diaryDao.getFolders(userName)
 
-        return userDir.listFiles { file -> file.extension == "txt" }
-            ?.map { file ->
-                val lines = file.readLines()
-                Diary(
-                    name = name,
-                    date = lines.getOrNull(0) ?: "",
-                    title = file.nameWithoutExtension,
-                    content = lines.drop(2).joinToString("\n")
-                )
-            }?.sortedByDescending { it.date } ?: emptyList()
-    }
+    override fun searchInFolder(userName: String, folder: String, keyword: String): Flow<List<DiaryDto>> =
+        diaryDao.searchInFolder(userName, folder, keyword).map { entities ->
+            entities.map { it.toDto() }
+        }
 
-    override fun findDiariesByTitle(name: String, titleKeyword: String): List<Diary> {
-        val userDir = File(diaryDir, name)
-        if (!userDir.exists() || !userDir.isDirectory) return emptyList()
+    override fun searchTimeline(userName: String, keyword: String): Flow<List<DiaryDto>> =
+        diaryDao.searchTimeline(userName, keyword).map { entities ->
+            entities.map { it.toDto() }
+        }
 
-        val diaryFiles = userDir.listFiles { file -> file.extension == "txt" } ?: return emptyList()
+    override fun filterByDate(userName: String, start: Long, end: Long): Flow<List<DiaryDto>> =
+        diaryDao.filterByDate(userName, start, end).map { entities ->
+            entities.map { it.toDto() }
+        }
 
-        return diaryFiles.mapNotNull { file ->
-            val lines = file.readLines()
-            val fileTitle = lines.getOrNull(1)?.trim()
-
-            if (fileTitle != null && fileTitle.contains(titleKeyword, ignoreCase = true)) {
-                Diary(
-                    name = name,
-                    date = lines.getOrNull(0) ?: "",
-                    title = file.nameWithoutExtension,
-                    content = lines.drop(2).joinToString("\n")
-                )
-            } else {
-                null
-            }
-        }.sortedByDescending { it.date }
-    }
-
-    override fun findDiariesByContent(name: String, contentKeyword: String): List<Diary> {
-        val userDir = File(diaryDir, name)
-        if (!userDir.exists() || !userDir.isDirectory) return emptyList()
-
-        val diaryFiles = userDir.listFiles { file -> file.extension == "txt" } ?: return emptyList()
-
-        return diaryFiles.mapNotNull { file ->
-            val lines = file.readLines()
-            val fileContent = lines.getOrNull(2)?.trim()
-
-            if (fileContent != null && fileContent.contains(contentKeyword, ignoreCase = true)) {
-                Diary(
-                    name = name,
-                    date = lines.getOrNull(0) ?: "",
-                    title = file.nameWithoutExtension,
-                    content = lines.drop(2).joinToString("\n")
-                )
-            } else {
-                null
-            }
-        }.sortedByDescending { it.date }
-    }
-
-    override fun findDiaryByUniqueTitle(name: String, uniqueTitle: String): Diary? {
-        val userDir = File(diaryDir, name)
-        if (!userDir.exists() || !userDir.isDirectory) return null
-
-        val diaryFile = userDir.listFiles { file ->
-            file.extension == "txt" && file.nameWithoutExtension == uniqueTitle
-        }?.firstOrNull() ?: return null
-
-        val lines = diaryFile.readLines()
-        return Diary(
-            name = name,
-            date = lines.getOrNull(0) ?: "",
-            title = diaryFile.nameWithoutExtension,
-            content = lines.drop(2).joinToString("\n")
-        )
+    override suspend fun renameFolder(userName: String, oldName: String, newName: String) {
+        diaryDao.renameFolder(userName, oldName, newName)
     }
 }
