@@ -23,8 +23,10 @@ import com.example.diaryapp.presentation.ui.component.button.BackButton
 import com.example.diaryapp.presentation.ui.component.button.LoginButton
 import com.example.diaryapp.presentation.ui.theme.BackGround
 import com.example.diaryapp.presentation.ui.theme.DiaryAppTheme
+import com.example.diaryapp.presentation.ui.theme.ErrorColor
 import com.example.diaryapp.presentation.ui.theme.Jua
 import com.example.diaryapp.presentation.ui.theme.PrimaryAccent
+import com.example.diaryapp.presentation.viewmodel.FindPasswordUiState
 
 
 @Composable
@@ -32,11 +34,12 @@ fun FindPasswordScreen(
     id: String,
     onValueChange: (String) -> Unit,
     onClick: () -> Unit,
-    onBackClick: () -> Unit
+    onBackClick: () -> Unit,
+    uiState: FindPasswordUiState
 ) {
     val focusManager = LocalFocusManager.current
 
-    DiaryAppTheme() {
+    DiaryAppTheme {
         Box(
             Modifier
                 .fillMaxSize()
@@ -89,22 +92,31 @@ fun FindPasswordScreen(
                     IdTextField(
                         value = id,
                         onValueChange = { onValueChange(it) },
-                        label = "아이디"
+                        label = "아이디",
+                        isError = uiState.idError != null,
                     )
                     Box(
                         modifier = Modifier
                             .padding(bottom = 8.dp)
                             .fillMaxWidth()
                     ) {
-                        Text(
-                            text = "• 아이디는 8~16자, 특수문자 제외",
-                            modifier = Modifier.align(Alignment.BottomStart)
-                        )
+                        if(uiState.idError != null){
+                            Text(
+                                text = "• ${uiState.idError}",
+                                color = ErrorColor,
+                                modifier = Modifier.align(Alignment.BottomStart)
+                            )
+                        } else {
+                            Text(
+                                text = "• 아이디는 4~20자, 특수문자 제외",
+                                modifier = Modifier.align(Alignment.BottomStart)
+                            )
+                        }
                     }
                     LoginButton(
                         text = "비밀번호 찾기",
                         onClick = onClick,
-                        enabled = id.isNotBlank()
+                        enabled = !uiState.isLoading
                     )
                 }
             }
