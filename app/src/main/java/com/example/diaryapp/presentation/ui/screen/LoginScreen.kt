@@ -1,5 +1,6 @@
 package com.example.diaryapp.presentation.ui.screen
 
+import android.annotation.SuppressLint
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -9,9 +10,13 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Checkbox
+import androidx.compose.material3.CheckboxDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -19,9 +24,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalFocusManager
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavController
 import com.example.diaryapp.presentation.ui.component.card.LoginCard
 import com.example.diaryapp.presentation.ui.component.input.IdTextField
 import com.example.diaryapp.presentation.ui.component.button.LoginButton
@@ -29,21 +32,49 @@ import com.example.diaryapp.presentation.ui.component.logo.Logo
 import com.example.diaryapp.presentation.ui.component.input.PasswordTextField
 import com.example.diaryapp.presentation.ui.component.button.TextOnlyButton
 import com.example.diaryapp.presentation.ui.theme.BackGround
-import com.example.diaryapp.presentation.ui.theme.DiaryAppTheme // Import your custom theme
+import com.example.diaryapp.presentation.ui.theme.ErrorColor
 import com.example.diaryapp.presentation.ui.theme.PrimaryAccent
+import com.example.diaryapp.presentation.viewmodel.LoginUiEvent
+import com.example.diaryapp.presentation.viewmodel.LoginViewModel
 
+@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 fun LoginScreen(
-    onLoginSuccess: () -> Unit = {},
+    viewModel: LoginViewModel,
+    onLoginSuccess: (String) -> Unit = {},
     onFindScreen: () -> Unit = {},
     onSignupScreen: () -> Unit = {},
-) {
-    var id by remember { mutableStateOf("") }
-    var password by remember { mutableStateOf("") }
+    showToast: (String) -> Unit
 
+) {
+    val autoLogin by viewModel.autoLogin.collectAsState()
+
+    val uiState = viewModel.uiState
     val focusManager = LocalFocusManager.current
 
-    Scaffold() {
+    // 자동 로그인
+    var checked by remember { mutableStateOf(false) }
+
+    LaunchedEffect(autoLogin) {
+        if (!checked && autoLogin) {
+            checked = true
+            viewModel.login()
+        }
+    }
+
+    // 로그인 성공/실패 이벤트 처리
+    LaunchedEffect(Unit) {
+        viewModel.uiEvent.collect { event ->
+            when (event) {
+                is LoginUiEvent.LoginSuccess -> onLoginSuccess(event.userName)
+                is LoginUiEvent.LoginFailed -> {
+                    showToast(event.message)
+                }
+            }
+        }
+    }
+
+    Scaffold {
         Box(
             Modifier
                 .fillMaxSize()
@@ -73,43 +104,79 @@ fun LoginScreen(
                         .fillMaxWidth(0.9f)
                 ) {
                     IdTextField(
-                        value = id,
-                        onValueChange = { id = it },
-                        label = "아이디"
+                        value = uiState.userName,
+                        onValueChange = viewModel::onIdChange,
+                        label = "아이디",
+                        isError = uiState.idError != null
                     )
                     Box(
                         modifier = Modifier
                             .padding(bottom = 6.dp)
                             .fillMaxWidth()
                     ) {
-                        Text(
-                            text = "• 아이디는 8~16자, 특수문자 제외",
-                            color = PrimaryAccent,
-                            modifier = Modifier.align(Alignment.BottomStart)
-                        )
+                        if(uiState.idError != null){
+                            Text(
+                                text = "• ${uiState.idError}",
+                                color = ErrorColor,
+                                modifier = Modifier.align(Alignment.BottomStart)
+                            )
+                        } else {
+                            Text(
+                                text = "• 아이디는 8~16자, 특수문자 제외",
+                                color = PrimaryAccent,
+                                modifier = Modifier.align(Alignment.BottomStart)
+                            )
+                        }
                     }
                     PasswordTextField(
-                        value = password,
-                        onValueChange = { password = it },
-                        label = "비밀번호"
+                        value = uiState.password,
+                        onValueChange = viewModel::onPwChange,
+                        label = "비밀번호",
+                        isError = uiState.pwError != null
                     )
                     Box(
                         modifier = Modifier
                             .padding(bottom = 16.dp, start = 1.dp)
                             .fillMaxWidth()
                     ) {
-                        Text(
-                            text = "• 비밀번호는 8~16자, 숫자/영문/특수문자 포함",
-                            color = PrimaryAccent,
-                            modifier = Modifier.align(Alignment.BottomStart)
+                        if(uiState.pwError != null){
+                            Text(
+                                text = "• ${uiState.pwError}",
+                                color = ErrorColor,
+                                modifier = Modifier.align(Alignment.BottomStart)
+                            )
+                        } else {
+                            Text(
+                                text = "• 비밀번호는 8~16자, 숫자/영문/특수문자 포함",
+                                color = PrimaryAccent,
+                                modifier = Modifier.align(Alignment.BottomStart)
+                            )
+                        }
+                    }
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.End,
+                        modifier = Modifier.padding(start = 200.dp, bottom = 10.dp)
+                    ) {
+                        Checkbox(
+                            checked = uiState.autoLogin,
+                            onCheckedChange = viewModel::onAutoLoginChange,
+                            enabled = true,
+                            colors = CheckboxDefaults.colors(
+                                checkedColor = PrimaryAccent,
+                                uncheckedColor = PrimaryAccent,
+                                checkmarkColor = BackGround,
+                                disabledUncheckedColor = PrimaryAccent
+                            )
                         )
+                        Text("자동 로그인")
                     }
                     LoginButton(
                         text = "로그인",
-                        onClick = onLoginSuccess,
-                            // TODO 추후 DB연동하여 작동체크
-                        enabled = id.isNotBlank()
-                                && password.isNotBlank()
+                        onClick = {
+                            viewModel.login()
+                        },
+                        enabled = !uiState.isLoading
                     )
                     Row(
                         modifier = Modifier
