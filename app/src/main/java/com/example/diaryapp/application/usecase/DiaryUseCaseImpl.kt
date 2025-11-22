@@ -1,76 +1,59 @@
 package com.example.diaryapp.application.usecase
 
-import diaryapp.application.validator.DiaryValidator
-import com.example.diaryapp.dto.toDiary
+import com.example.diaryapp.application.validator.DiaryValidator
+import com.example.diaryapp.application.validator.FolderValidator
 import com.example.diaryapp.domain.repository.DiaryRepository
 import com.example.diaryapp.dto.DiaryDto
-import com.example.diaryapp.dto.toDiaryDto
-import java.util.NoSuchElementException
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.first
+import javax.inject.Inject
 
-class DiaryUseCaseImpl(
+class DiaryUseCaseImpl @Inject constructor(
     private val diaryRepository: DiaryRepository,
-    private val diaryValidator: DiaryValidator
+    private val diaryValidator: DiaryValidator,
+    private val folderValidator: FolderValidator
 ) : DiaryUseCase {
 
-    override fun onWrite(diaryDto: DiaryDto) {
-        diaryValidator.validateTitleInput(diaryDto.title)
-        diaryValidator.validateContentInput(diaryDto.content)
-
-        val diary = diaryDto.toDiary()
-
-        diaryRepository.saveDiary(diary)
+    override suspend fun writeDiary(diary: DiaryDto) {
+        diaryValidator.validateTitleInput(diary.title)
+        diaryValidator.validateContentInput(diary.content)
+        diaryRepository.insertDiary(diary)
     }
 
-    override fun onModify(diaryDto: DiaryDto, newTitle: String, newContent: String) {
-        diaryValidator.validateTitleInput(newTitle)
-        diaryValidator.validateContentInput(newContent)
-
-        val existingDiary = diaryRepository.findDiaryByUniqueTitle(diaryDto.name, diaryDto.title)
-            ?: throw NoSuchElementException("수정할 일기(${diaryDto.title})를 찾을 수 없습니다.")
-
-        if (existingDiary.name != diaryDto.name) {
-            throw IllegalAccessException("본인 일기만 수정할 수 있습니다.")
-        }
-
-        val updatedDiary = existingDiary.copy(
-            title = newTitle,
-            content = newContent
-        )
-
-        diaryRepository.updateDiary(existingDiary.title, updatedDiary)
+    override suspend fun updateDiary(diary: DiaryDto) {
+        diaryValidator.validateTitleInput(diary.title)
+        diaryValidator.validateContentInput(diary.content)
+        diaryRepository.updateDiary(diary)
     }
 
-    override fun onDelete(diaryDto: DiaryDto) {
-        val existingDiary = diaryRepository.findDiaryByUniqueTitle(diaryDto.name, diaryDto.title)
-            ?: throw NoSuchElementException("삭제할 다이어리가 존재하지 않습니다.")
-
-        if (existingDiary.name != diaryDto.name) {
-            throw IllegalAccessException("본인 일기만 삭제할 수 있습니다.")
-        }
-        diaryRepository.deleteDiary(diaryDto.name, diaryDto.title)
+    override suspend fun deleteDiary(id: Int) {
+        diaryRepository.deleteDiary(id)
     }
 
-    override fun findByUser(name: String): List<DiaryDto> {
-        val diaryList = diaryRepository.findDiariesByUser(name)
+    override fun getDiaryById(id: Int): Flow<DiaryDto?> =
+        diaryRepository.getDiaryById(id)
 
-        if (diaryList.isEmpty()) throw NoSuchElementException("${name}의 다이어리는 비어있습니다.")
+    override fun getDiariesByUser(userName: String): Flow<List<DiaryDto>> =
+        diaryRepository.getDiariesByUser(userName)
 
-        return diaryList.map { it.toDiaryDto() }
-    }
+    override fun getDiariesByFolder(userName: String, folder: String): Flow<List<DiaryDto>> =
+        diaryRepository.getDiariesByFolder(userName, folder)
 
-    override fun findDiariesByTitle(name: String, titleKeyword: String): List<DiaryDto> {
-        val diaryList = diaryRepository.findDiariesByTitle(name, titleKeyword)
+    override fun searchInFolder(userName: String, folder: String, keyword: String): Flow<List<DiaryDto>> =
+        diaryRepository.searchInFolder(userName, folder, keyword)
 
-        if (diaryList.isEmpty()) throw NoSuchElementException("입력한 키워드를 포함하는 일기를 찾을 수 없습니다.")
+    override fun searchTimeline(userName: String, keyword: String): Flow<List<DiaryDto>> =
+        diaryRepository.searchTimeline(userName, keyword)
 
-        return diaryList.map { it.toDiaryDto() }
-    }
+    override fun filterByDate(userName: String, start: Long, end: Long): Flow<List<DiaryDto>> =
+        diaryRepository.filterByDate(userName, start, end)
 
-    override fun findDiariesByContent(name: String, contentKeyword: String): List<DiaryDto> {
-        val diaryList = diaryRepository.findDiariesByContent(name, contentKeyword)
+    override fun getFolders(userName: String): Flow<List<String>> =
+        diaryRepository.getFolders(userName)
 
-        if (diaryList.isEmpty()) throw NoSuchElementException("입력한 키워드를 포함하는 일기를 찾을 수 없습니다.")
-
-        return diaryList.map { it.toDiaryDto() }
+    override suspend fun renameFolder(userName: String, oldName: String, newName: String) {
+        val folders = diaryRepository.getFolders(userName).first()
+        // folderValidator.validateFolderName(newName, folders) // Assuming validator checks the new name
+        diaryRepository.renameFolder(userName, oldName, newName)
     }
 }

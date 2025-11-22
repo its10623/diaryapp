@@ -1,12 +1,18 @@
 package com.example.diaryapp.application.usecase
 
 import com.example.diaryapp.dto.DiaryDto
+import kotlinx.coroutines.flow.Flow
 
 interface DiaryUseCase {
-    fun onWrite(diaryDto: DiaryDto)
-    fun onDelete(diaryDto: DiaryDto)
-    fun onModify(diaryDto: DiaryDto, newTitle: String, newContent: String)
-    fun findByUser(name: String): List<DiaryDto>
-    fun findDiariesByTitle(name: String, titleKeyword: String): List<DiaryDto>
-    fun findDiariesByContent(name: String, contentKeyword: String): List<DiaryDto>
+    suspend fun writeDiary(diary: DiaryDto)
+    suspend fun updateDiary(diary: DiaryDto)
+    suspend fun deleteDiary(id: Int)
+    fun getDiaryById(id: Int): Flow<DiaryDto?>
+    fun getDiariesByUser(userName: String): Flow<List<DiaryDto>>
+    fun getDiariesByFolder(userName: String, folder: String): Flow<List<DiaryDto>>
+    fun searchInFolder(userName: String, folder: String, keyword: String): Flow<List<DiaryDto>>
+    fun searchTimeline(userName: String, keyword: String): Flow<List<DiaryDto>>
+    fun filterByDate(userName: String, start: Long, end: Long): Flow<List<DiaryDto>>
+    fun getFolders(userName: String): Flow<List<String>>
+    suspend fun renameFolder(userName: String, oldName: String, newName: String)
 }
