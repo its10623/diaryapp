@@ -16,9 +16,10 @@ sealed class Screen(
     object FindScreen : Screen("findScreen")
     object SignUp : Screen("signup")
     object FolderScreen : Screen("folderScreen")
-    object WriteScreen : Screen("writeScreen")
-    object EditScreen : Screen("edit/{id}")
-    object ViewDiary : Screen("viewDiary")
+    object WriteScreen : Screen("editor?folder={folder}")
+    object EditScreen : Screen("edit/{id}") // 기존 일기 수정 경로로 수정
+    object ViewDiary : Screen("ViewDiary/{id}")
+    object Favorites : Screen("favorites_screen")
 
 }
 
