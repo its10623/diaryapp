@@ -1,7 +1,9 @@
 # 🗒️ 모노 다이어리 ( Android / Jetpack Compose )
 
 > 모노톤 감성의 개인 다이어리 Android Application 입니다.
+> 
 > 폴더 분류 / 타임라인 / 일기 작성 기능을 제공하며,
+> 
 > Jetpack Compose / Clean Architecture / MVVM 기반으로 구현 되었습니다.
 
 ---
