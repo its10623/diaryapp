@@ -1,7 +1,5 @@
 package com.example.diaryapp.presentation.ui.component
 
-import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -24,18 +22,16 @@ import androidx.compose.material3.RadioButtonDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.max
 import androidx.compose.ui.unit.sp
 import com.example.diaryapp.presentation.ui.theme.BackGround
-import com.example.diaryapp.presentation.ui.theme.BoundaryLine
 import com.example.diaryapp.presentation.ui.theme.PrimaryAccent
 import java.time.LocalDate
 
@@ -44,13 +40,19 @@ import java.time.LocalDate
 fun FilterBottomSheet(
     sortType: SortType,
     selectedDates: Set<LocalDate>,
-    diaryDates: List<LocalDate>,  // 일기 날짜 목록
+    diaryDates: List<LocalDate>,
     onApply: (SortType, Set<LocalDate>) -> Unit,
     onDismiss: () -> Unit,
     onReset: () -> Unit
 ) {
     var tempSort by remember { mutableStateOf(sortType) }
     var tempDates by remember { mutableStateOf(selectedDates.toMutableSet()) }
+
+// 딱 1회만 초기화
+    LaunchedEffect(sortType, selectedDates) {
+        tempSort = sortType
+        tempDates = selectedDates.toMutableSet()
+    }
 
     val sheetState = rememberModalBottomSheetState(
         skipPartiallyExpanded = true
@@ -73,7 +75,7 @@ fun FilterBottomSheet(
 
             Spacer(Modifier.height(30.dp))
 
-            // ---------- 정렬 옵션 ----------
+            // 정렬 옵션
             Text("정렬", fontSize = 18.sp)
 
             FilterOptionItem(
@@ -90,7 +92,7 @@ fun FilterBottomSheet(
 
             Spacer(Modifier.height(16.dp))
 
-            // ---------- 날짜 다중 선택 ----------
+            // 날짜 다중 선택
             Text("특정 날짜 선택", fontSize = 18.sp)
 
             val distinctDates = diaryDates.distinct().sortedDescending()

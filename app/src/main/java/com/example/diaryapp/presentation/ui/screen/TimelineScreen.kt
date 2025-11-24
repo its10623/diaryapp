@@ -17,6 +17,22 @@ fun TimelineScreen(
     onEdit: (Long) -> Unit,
     onDelete: (Long) -> Unit
 ) {
+    val diaries by viewModel.filteredDiaryList.collectAsState()
+    val errorMessage by viewModel.errorMessage.collectAsState()
+
+    var searchVisible by remember { mutableStateOf(false) }
+    var query by remember { mutableStateOf("") }
+
+    LaunchedEffect(query) {
+        if (query.isBlank()) {
+            if (!viewModel.activeFilter.value) {
+                viewModel.loadUserDiaries(userName)
+            }
+        } else {
+            viewModel.searchTimeline(userName, query)
+        }
+    }
+
     CommonScreen(
         title = "타임라인",
         diaryList = diaryList,
@@ -26,7 +42,7 @@ fun TimelineScreen(
         onSearchOpen = onSearchOpen,
         onSearchClose = onSearchClose,
         onMenuClick = onMenuClick,
-        onFilterClick = onFilterClick,
+        onFilterClick = { onFilterClick() },
         onViewDiary = onViewDiary,
         onEdit = onEdit,
         onDelete = onDelete

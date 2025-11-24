@@ -19,6 +19,20 @@ fun FolderScreen(
     onFilterClick: () -> Unit = {}
 
 ) {
+    val diaries by viewModel.filteredFolderList.collectAsState()
+    val errorMessage by viewModel.errorMessage.collectAsState()
+
+    var searchVisible by remember { mutableStateOf(false) }
+    var query by remember { mutableStateOf("") }
+
+    LaunchedEffect(folderName, query) {
+        if (query.isBlank()) {
+            viewModel.loadFolderDiaries(userName, folderName)
+        } else {
+            viewModel.searchInFolder(userName, folderName, query)
+        }
+    }
+
     CommonScreen(
         title = folderName,
         diaryList = diaryList,

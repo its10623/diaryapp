@@ -49,7 +49,9 @@ import java.time.format.DateTimeFormatter
 @Composable
 fun MainScreen(
     appNavController: NavHostController,
-    dummyList: List<Diary>
+    userName: String,
+    diaryViewModel: DiaryViewModel,
+    loginViewModel: LoginViewModel,
 ) {
     val bottomNavController = rememberNavController()
     val currentBackStack by bottomNavController.currentBackStackEntryAsState()
@@ -65,7 +67,10 @@ fun MainScreen(
     }
 
     var showAddFolderDialog by remember { mutableStateOf(false) }
-    var showDeleteDialog by remember { mutableStateOf(false) }
+
+    // 검색
+    var searchVisible by remember { mutableStateOf(false) }
+    var query by remember { mutableStateOf("") }
 
     val drawerState = rememberDrawerState(DrawerValue.Closed)
     val scope = rememberCoroutineScope()
@@ -189,20 +194,47 @@ fun MainScreen(
             ) { paddingValues ->
 
             if (filterSheetVisible) {
+
+                val filterScope by diaryViewModel.currentFilterScope.collectAsState()
+
+                // 스코프에 따라 다른 상태를 읽음
+                val sortType by when (filterScope) {
+                    FilterScope.TIMELINE -> diaryViewModel.timelineSortType.collectAsState()
+                    FilterScope.FOLDER -> diaryViewModel.folderSortType.collectAsState()
+                }
+
+                val selectedDates by when (filterScope) {
+                    FilterScope.TIMELINE -> diaryViewModel.timelineDates.collectAsState()
+                    FilterScope.FOLDER -> diaryViewModel.folderDates.collectAsState()
+                }
+
+                val diaryList by when (filterScope) {
+                    FilterScope.TIMELINE -> diaryViewModel.filteredDiaryList.collectAsState()
+                    FilterScope.FOLDER -> diaryViewModel.filteredFolderList.collectAsState()
+                }
+
+                // 날짜 포맷 변환
+                val diaryDates = remember(diaryList) {
+                    diaryList.map { diary ->
+                        Instant.ofEpochMilli(diary.createDate.time)
+                            .atZone(ZoneId.systemDefault())
+                            .toLocalDate()
+                    }
+                }
                 FilterBottomSheet(
                     sortType = sortType,
                     selectedDates = selectedDates,
                     diaryDates = diaryDates,
                     onApply = { newSort, newDates ->
-                        sortType = newSort
-                        selectedDates = newDates
+                        diaryViewModel.applyFilter(newSort, newDates)
+                        filterSheetVisible = false
                     },
                     onDismiss = {
                         filterSheetVisible = false
                     },
                     onReset = {
-                        sortType = SortType.NONE
-                        selectedDates = emptySet()
+                        diaryViewModel.applyFilter(SortType.NONE, emptySet())
+                        filterSheetVisible = false
                     }
                 )
             }
@@ -243,13 +275,11 @@ fun MainScreen(
                     }
 
                     TimelineScreen(
-                        diaryList = timelineDiaries,
-                        searchVisible = searchVisible,
-                        query = query,
-                        onQueryChange = { query = it },
-                        onSearchClose = {
-                            searchVisible = false
-                            query = ""
+                        userName = userName,
+                        viewModel = diaryViewModel,
+                        onFilterClick = {
+                            diaryViewModel.setFilterScope(FilterScope.TIMELINE)
+                            filterSheetVisible = true
                         },
                         onSearchOpen = { searchVisible = true },
                         onFilterClick = { filterSheetVisible = true },
@@ -299,14 +329,10 @@ fun MainScreen(
 
                     FolderScreen(
                         folderName = folderName,
-                        diaryList = folderDiaries,
-                        searchVisible = searchVisible,
-                        query = query,
-                        onQueryChange = { query = it },
-                        onSearchOpen = { searchVisible = true },
-                        onSearchClose = {
-                            searchVisible = false
-                            query = ""
+                        viewModel = diaryViewModel,
+                        onFilterClick = {
+                            diaryViewModel.setFilterScope(FilterScope.FOLDER)
+                            filterSheetVisible = true
                         },
                         onFilterClick = { filterSheetVisible = true },
                         onViewDiary = { id ->
