@@ -1,5 +1,6 @@
 package com.example.diaryapp.presentation.ui.screen
 
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -19,6 +20,8 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -26,6 +29,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
@@ -37,22 +41,80 @@ import com.example.diaryapp.presentation.ui.theme.BackGround
 import com.example.diaryapp.presentation.ui.theme.LogoTextStyle
 import com.example.diaryapp.presentation.ui.theme.PrimaryAccent
 import com.example.diaryapp.presentation.ui.theme.inter
+import com.example.diaryapp.presentation.viewmodel.DiaryViewModel
+import kotlinx.coroutines.flow.collectLatest
+import java.time.Instant
 import java.time.LocalDate
+import java.time.ZoneId
 import java.time.format.DateTimeFormatter
+import java.util.Date
 
 @Composable
 fun DiaryEditorScreen(
     mode: EditorMode,
-    initialTitle: String = "",
-    initialContent: String = "",
-    initialDate: String = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy년 MM월 dd일")),
-    onBack: () -> Unit = {},
-    onSave: (String, String) -> Unit = {_, _ -> },
+    id: Int?,
+    userName: String,
+    folderName: String?,
+    viewModel: DiaryViewModel,
+    onBack: () -> Unit,
+    onSave: () -> Unit
 ) {
-    var title by remember { mutableStateOf(initialTitle) }
-    var content by remember { mutableStateOf(initialContent) }
+    val diary by viewModel.selectedDiary.collectAsState()
+
+    var title by remember { mutableStateOf("") }
+    var content by remember { mutableStateOf("") }
+    var date by remember { mutableStateOf("") }
 
     val focusManager = LocalFocusManager.current
+    val context = LocalContext.current
+
+    LaunchedEffect(Unit) {
+        viewModel.writeSuccess.collectLatest { success ->
+            if (success) {
+                onSave()
+            }
+        }
+    }
+
+    LaunchedEffect(Unit) {
+        viewModel.updateSuccess.collectLatest { success ->
+            if (success) {
+                onSave()
+            }
+        }
+    }
+
+    LaunchedEffect(Unit) {
+        viewModel.errorMessage.collectLatest { message ->
+            message?.let {
+                Toast.makeText(context, it, Toast.LENGTH_SHORT).show()
+                viewModel.clearErrorMessage()
+            }
+        }
+    }
+
+    LaunchedEffect(id) {
+        if (mode == EditorMode.EDIT && id != null && id != 0) {
+            viewModel.loadDiary(id)
+        }
+    }
+
+    LaunchedEffect(diary) {
+        diary?.let {
+            title = it.title
+            content = it.content
+            date = Instant.ofEpochMilli(it.createDate.time)
+                .atZone(ZoneId.systemDefault())
+                .toLocalDate()
+                .format(DateTimeFormatter.ofPattern("yyyy.MM.dd (E)"))
+        }
+    }
+
+    LaunchedEffect(Unit) {
+        if (mode == EditorMode.CREATE) {
+            date = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy.MM.dd (E)"))
+        }
+    }
 
     Scaffold(
         topBar = {
@@ -64,7 +126,6 @@ fun DiaryEditorScreen(
                     onBack,
                     Modifier.align(Alignment.TopStart)
                 )
-
                 Spacer(modifier = Modifier.width(8.dp))
 
                 Text(
@@ -103,7 +164,7 @@ fun DiaryEditorScreen(
                         .align(Alignment.Start)
                 )
                 OutlinedTextField(
-                    value = initialDate,
+                    value = date,
                     onValueChange = {},
                     textStyle = TextStyle(
                         color = PrimaryAccent,
@@ -123,7 +184,7 @@ fun DiaryEditorScreen(
                     value = title,
                     onValueChange = { title = it },
                     modifier = Modifier.fillMaxWidth(),
-                    singleLine = true,           // 한 줄 입력 처리용
+                    singleLine = true,
                     textStyle = TextStyle(
                         fontFamily = inter,
                         color = PrimaryAccent,
@@ -169,7 +230,26 @@ fun DiaryEditorScreen(
 
                 LoginButton(
                     text = if (mode == EditorMode.CREATE) "저장" else "수정 완료",
-                    onClick = { onSave(title, content) },
+                    onClick = {
+                        if (mode == EditorMode.CREATE) {
+                            viewModel.writeDiary(
+                                userName = userName,
+                                folder =  folderName,
+                                title =  title,
+                                content = content
+                            )
+                        } else {
+                            diary?.let { old ->
+                                viewModel.updateDiary(
+                                    old.copy(
+                                        title = title,
+                                        content = content,
+                                        updateDate = Date()
+                                    )
+                                )
+                            }
+                        }
+                    },
                     enabled = title.isNotBlank()
                             && content.isNotBlank()
                 )
