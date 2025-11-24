@@ -1,10 +1,9 @@
-package com.example.diaryapp.presentation.ui.component
+package com.example.diaryapp.presentation.ui.component.timeline
 
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight.Companion.Bold
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -19,7 +18,7 @@ fun DateHeader(
     modifier: Modifier = Modifier
 ) {
     Text(
-        text = date.format(DateTimeFormatter.ofPattern("yyyy년 MM월 dd일")),
+        text = date.format(DateTimeFormatter.ofPattern("yyyy.MM.dd (E)")),
         modifier = Modifier
             .padding(vertical = 6.dp, horizontal = 16.dp),
         fontFamily = inter,
