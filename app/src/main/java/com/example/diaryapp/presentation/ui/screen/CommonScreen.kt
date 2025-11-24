@@ -37,21 +37,22 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.diaryapp.R
-import com.example.diaryapp.domain.model.Diary
-import com.example.diaryapp.presentation.ui.component.DateHeader
+import com.example.diaryapp.dto.DiaryDto
+import com.example.diaryapp.presentation.ui.component.timeline.DateHeader
 import com.example.diaryapp.presentation.ui.component.DiarySearchBar
-import com.example.diaryapp.presentation.ui.component.TimelineIndicator
+import com.example.diaryapp.presentation.ui.component.timeline.TimelineIndicator
 import com.example.diaryapp.presentation.ui.component.card.TimelineCard
+import com.example.diaryapp.presentation.ui.component.timeline.TimelineEmptyView
 import com.example.diaryapp.presentation.ui.theme.BackGround
 import com.example.diaryapp.presentation.ui.theme.LogoTextStyle
 import com.example.diaryapp.presentation.ui.theme.PrimaryAccent
-import java.time.LocalDate
-import java.time.format.DateTimeFormatter
+import java.time.Instant
+import java.time.ZoneId
 
 @Composable
 fun CommonScreen(
     title: String,
-    diaryList: List<Diary>,
+    diaryList: List<DiaryDto>,
     searchVisible: Boolean,
     query: String,
     onQueryChange: (String) -> Unit,
@@ -59,19 +60,22 @@ fun CommonScreen(
     onSearchClose: () -> Unit,
     onMenuClick: () -> Unit,
     onFilterClick: () -> Unit,
-    onViewDiary: (Long) -> Unit,
-    onEdit: (Long) -> Unit,
-    onDelete: (Long) -> Unit
+    onViewDiary: (Int) -> Unit,
+    onEdit: (Int) -> Unit,
+    onDeleteRequest: (Int) -> Unit,
 ) {
-    var selectedCardId by remember { mutableStateOf<Long?>(null) }
+    var selectedCardId by remember { mutableStateOf<Int?>(null) }
     var menuExpanded by remember { mutableStateOf(false) }
 
     val grouped = diaryList
-        .groupBy { it.date }
+        .groupBy {
+            Instant.ofEpochMilli(it.createDate.time)
+                .atZone(ZoneId.systemDefault())
+                .toLocalDate()
+        }
         .toList()
 
     val focusManager = LocalFocusManager.current
-    val formatter = DateTimeFormatter.ofPattern("yyyy년 MM월 dd일")
 
     val listState = rememberLazyListState()
 
@@ -87,8 +91,7 @@ fun CommonScreen(
                     DiarySearchBar(
                         value = query,
                         onValueChange = onQueryChange,
-                        onClose = onSearchClose,
-                        onSearch = { /* TODO */ }
+                        onClose = onSearchClose
                     )
                 }
                 AnimatedVisibility(
@@ -144,75 +147,79 @@ fun CommonScreen(
                     }
                 }
         ) {
-            LazyColumn(
-                state = listState,
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(paddingValues)
-            ) {
-                itemsIndexed(
-                    items = grouped,
-                    key = { _, (date, _) -> date }
-                ) { groupIndex, (date, diaries) ->
-                    val isFirstGroup = groupIndex == 0
-                    val isLastGroup = groupIndex == grouped.size - 1
-                    val localDate = LocalDate.parse(date, formatter)
+            if (diaryList.isEmpty()) {
+                TimelineEmptyView()
+            } else {
+                LazyColumn(
+                    state = listState,
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(paddingValues)
+                ) {
+                    itemsIndexed(
+                        items = grouped,
+                        key = { _, (date, _) -> date }
+                    ) { groupIndex, (date, diaries) ->
+                        val isFirstGroup = groupIndex == 0
+                        val isLastGroup = groupIndex == grouped.size - 1
 
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(IntrinsicSize.Min)
-                    ) {
-                        TimelineIndicator(
-                            isFirstGroup = isFirstGroup,
-                            isLastGroup = isLastGroup
-                        )
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(IntrinsicSize.Min)
+                        ) {
+                            TimelineIndicator(
+                                isFirstGroup = isFirstGroup,
+                                isLastGroup = isLastGroup
+                            )
 
-                        Column(modifier = Modifier.weight(1f)) {
+                            Column(modifier = Modifier.weight(1f)) {
 
-                            Row(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(end = 8.dp),
-                                horizontalArrangement = Arrangement.SpaceBetween
-                            ) {
-                                DateHeader(date = localDate)
+                                Row(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(end = 8.dp),
+                                    horizontalArrangement = Arrangement.SpaceBetween
+                                ) {
+                                    DateHeader(date = date)
 
-                                if (groupIndex == 0) {
-                                    IconButton(onClick = onFilterClick) {
-                                        Icon(
-                                            painter = painterResource(R.drawable.ic_filter),
-                                            contentDescription = null,
-                                            tint = PrimaryAccent,
-                                            modifier = Modifier.size(24.dp)
-                                        )
+                                    if (groupIndex == 0) {
+                                        IconButton(onClick = onFilterClick) {
+                                            Icon(
+                                                painter = painterResource(R.drawable.ic_filter),
+                                                contentDescription = null,
+                                                tint = PrimaryAccent,
+                                                modifier = Modifier.size(24.dp)
+                                            )
+                                        }
                                     }
                                 }
-                            }
 
-                            diaries.forEachIndexed { index, diary ->
-                                TimelineCard(
-                                    modifier = Modifier.padding(
-                                        bottom = if (index < diaries.size - 1) 8.dp else 16.dp
-                                    ),
-                                    title = diary.title,
-                                    content = diary.content,
-                                    onClick = { onViewDiary(diary.id) },
-                                    menuExpanded = (selectedCardId == diary.id) && menuExpanded,
-                                    onMoreClick = {
-                                        selectedCardId = diary.id
-                                        menuExpanded = true
-                                    },
-                                    onDismiss = { menuExpanded = false },
-                                    onEdit = {
-                                        menuExpanded = false
-                                        onEdit(diary.id)
-                                    },
-                                    onDelete = {
-                                        menuExpanded = false
-                                        onDelete(diary.id)
-                                    }
-                                )
+                                diaries.forEachIndexed { index, diary ->
+                                    TimelineCard(
+                                        diaryId = diary.id,
+                                        modifier = Modifier.padding(
+                                            bottom = if (index < diaries.size - 1) 8.dp else 16.dp
+                                        ),
+                                        title = diary.title,
+                                        content = diary.content,
+                                        onClick = { onViewDiary(diary.id) },
+                                        menuExpanded = (selectedCardId == diary.id) && menuExpanded,
+                                        onMoreClick = {
+                                            selectedCardId = diary.id
+                                            menuExpanded = true
+                                        },
+                                        onDismiss = { menuExpanded = false },
+                                        onEdit = {
+                                            menuExpanded = false
+                                            onEdit(diary.id)
+                                        },
+                                        onDelete = {
+                                            menuExpanded = false
+                                            onDeleteRequest(diary.id)
+                                        }
+                                    )
+                                }
                             }
                         }
                     }
