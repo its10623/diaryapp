@@ -41,9 +41,10 @@ class UserLocalDataSource @Inject constructor(
             users + user
         }
     }
+
     suspend fun updateUser(updated: User) {
         context.usersDataStore.updateData { users ->
-            users.map { if (it.userName == updated.userName) updated else it}
+            users.map { if (it.userName == updated.userName) updated else it }
         }
     }
 
@@ -66,10 +67,12 @@ class UserLocalDataSource @Inject constructor(
             prefs[UserKeys.PASSWORD_HASH] = hash
         }
     }
+
     fun getAutoLogin(): Flow<Boolean> =
         context.settingsDataStore.data.map { prefs ->
             prefs[UserKeys.AUTO_LOGIN] ?: false
         }
+
     suspend fun saveAutoLogin(value: Boolean) {
         context.settingsDataStore.edit { prefs ->
             prefs[UserKeys.AUTO_LOGIN] = value
@@ -79,6 +82,7 @@ class UserLocalDataSource @Inject constructor(
     suspend fun clearSettings() {
         context.settingsDataStore.edit { it.clear() }
     }
+
     suspend fun clearAllUsers() {
         context.usersDataStore.updateData { emptyList() }
     }

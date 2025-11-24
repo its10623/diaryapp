@@ -17,40 +17,25 @@ import com.example.diaryapp.presentation.ui.navigation.AppNavigation
 import com.example.diaryapp.presentation.ui.theme.DiaryAppTheme
 import dagger.hilt.android.AndroidEntryPoint
 import dagger.hilt.android.HiltAndroidApp
+
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-            setContent {
-                Column(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .statusBarsPadding()
-                        .navigationBarsPadding()
-                ) {
-                         AppNavigation()
+        setContent {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .statusBarsPadding()
+                    .navigationBarsPadding()
+            ) {
+                AppNavigation()
 
-                }
             }
+        }
 
         WindowCompat.getInsetsController(
             window, window.decorView
         ).isAppearanceLightStatusBars = true
-    }
-}
-
-@Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "안녕 $name!",
-        modifier = modifier
-    )
-}
-
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    DiaryAppTheme {
-        Greeting("Compose!!")
     }
 }

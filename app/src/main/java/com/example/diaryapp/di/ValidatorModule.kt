@@ -1,9 +1,9 @@
 package com.example.diaryapp.di
 
-import com.example.diaryapp.application.validator.DiaryValidateImpl
-import com.example.diaryapp.application.validator.DiaryValidator
-import com.example.diaryapp.application.validator.FolderValidator
-import com.example.diaryapp.application.validator.FolderValidatorImpl
+import com.example.diaryapp.domain.validator.DiaryValidateImpl
+import com.example.diaryapp.domain.validator.DiaryValidator
+import com.example.diaryapp.domain.validator.FolderValidator
+import com.example.diaryapp.domain.validator.FolderValidatorImpl
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn

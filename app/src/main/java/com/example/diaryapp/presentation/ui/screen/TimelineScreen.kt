@@ -7,8 +7,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import com.example.diaryapp.presentation.ui.component.SortType
-import com.example.diaryapp.presentation.ui.component.timeline.TimelineEmptyView
 import com.example.diaryapp.presentation.viewmodel.DiaryViewModel
 
 @Composable

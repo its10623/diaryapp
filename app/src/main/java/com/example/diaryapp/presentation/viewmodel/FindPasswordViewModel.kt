@@ -6,6 +6,8 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.diaryapp.domain.repository.UserRepository
+import com.example.diaryapp.presentation.ui.event.FindPasswordEvent
+import com.example.diaryapp.presentation.ui.uiState.FindPasswordUiState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
@@ -32,7 +34,6 @@ class FindPasswordViewModel @Inject constructor(
 
             val id = uiState.id
 
-            // 1) 입력 검증
             if (id.isBlank()) {
                 uiState = uiState.copy(idError = "아이디를 입력해주세요.")
                 return@launch
@@ -48,15 +49,14 @@ class FindPasswordViewModel @Inject constructor(
                 return@launch
             }
 
-            // 2) 로딩 시작
+            // 로딩 시작
             uiState = uiState.copy(isLoading = true)
 
-            // 3) DB/UserRepository 검증
+            // DB/UserRepository 검증
             val user = repo.findUser(id)
 
             uiState = uiState.copy(isLoading = false)
 
-            // 4) 결과 처리
             if (user != null) {
                 _event.emit(FindPasswordEvent.Success(id))
             } else {
@@ -64,15 +64,4 @@ class FindPasswordViewModel @Inject constructor(
             }
         }
     }
-}
-
-data class FindPasswordUiState(
-    val id: String = "",
-    val isLoading: Boolean = false,
-    val idError: String? = null
-)
-
-sealed class FindPasswordEvent {
-    data class Success(val id: String) : FindPasswordEvent()
-    data class Fail(val message: String) : FindPasswordEvent()
 }

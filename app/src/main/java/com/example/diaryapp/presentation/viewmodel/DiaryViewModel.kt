@@ -2,11 +2,10 @@ package com.example.diaryapp.presentation.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.diaryapp.application.usecase.DiaryUseCase
-import com.example.diaryapp.dto.DiaryDto
-import com.example.diaryapp.presentation.ui.component.SortType
+import com.example.diaryapp.domain.usecase.diary.DiaryUseCase
+import com.example.diaryapp.data.dto.DiaryDto
+import com.example.diaryapp.presentation.ui.component.timeline.SortType
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -316,4 +315,5 @@ class DiaryViewModel @Inject constructor(
         _selectedDiary.value = null
     }
 }
+
 enum class FilterScope { TIMELINE, FOLDER }

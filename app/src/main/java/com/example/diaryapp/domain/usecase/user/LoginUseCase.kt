@@ -11,6 +11,6 @@ class LoginUseCase @Inject constructor(
         if (userName.isBlank()) return false
         if (password.isBlank()) return false
 
-        return repo.login(userName,password)
+        return repo.login(userName, password)
     }
 }

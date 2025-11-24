@@ -5,9 +5,11 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.diaryapp.application.usecase.user.AutoLoginUseCase
-import com.example.diaryapp.application.usecase.user.LoginUseCase
+import com.example.diaryapp.domain.usecase.user.AutoLoginUseCase
+import com.example.diaryapp.domain.usecase.user.LoginUseCase
 import com.example.diaryapp.domain.repository.UserRepository
+import com.example.diaryapp.presentation.ui.event.LoginEvent
+import com.example.diaryapp.presentation.ui.uiState.LoginUiState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -23,7 +25,7 @@ class LoginViewModel @Inject constructor(
     private val userRepository: UserRepository
 ) : ViewModel() {
 
-    private val _uiEvent = MutableSharedFlow<LoginUiEvent>()
+    private val _uiEvent = MutableSharedFlow<LoginEvent>()
     val uiEvent = _uiEvent.asSharedFlow()
 
     var uiState by mutableStateOf(LoginUiState())
@@ -68,7 +70,7 @@ class LoginViewModel @Inject constructor(
         if (id != null && hash != null) {
             val user = userRepository.findUser(id)
             if (user != null && user.password == hash) {
-                _uiEvent.emit(LoginUiEvent.LoginSuccess(id))
+                _uiEvent.emit(LoginEvent.LoginSuccess(id))
             }
         }
     }
@@ -111,9 +113,9 @@ class LoginViewModel @Inject constructor(
                 autoLoginUseCase.saveUserId(id)
                 autoLoginUseCase.savePasswordHash(user.password)
 
-                _uiEvent.emit(LoginUiEvent.LoginSuccess(id))
+                _uiEvent.emit(LoginEvent.LoginSuccess(id))
             } else {
-                _uiEvent.emit(LoginUiEvent.LoginFailed("아이디 또는 비밀번호가 올바르지 않습니다."))
+                _uiEvent.emit(LoginEvent.LoginFailed("아이디 또는 비밀번호가 올바르지 않습니다."))
             }
         }
     }
@@ -124,16 +126,3 @@ class LoginViewModel @Inject constructor(
         autoLoginUseCase.savePasswordHash(null)
     }
 }
-
-sealed class LoginUiEvent {
-    data class LoginSuccess(val userName: String) : LoginUiEvent()
-    data class LoginFailed(val message: String) : LoginUiEvent()
-}
-
-data class LoginUiState(
-    val userName: String = "",
-    val password: String = "",
-    val idError: String? = null,
-    val pwError: String? = null,
-    val isLoading: Boolean = false
-)

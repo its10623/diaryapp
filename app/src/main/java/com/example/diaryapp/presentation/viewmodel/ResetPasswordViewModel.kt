@@ -5,8 +5,10 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.diaryapp.application.usecase.user.FindPasswordUseCase
-import com.example.diaryapp.application.usecase.user.ResetPasswordResult
+import com.example.diaryapp.domain.usecase.user.FindPasswordUseCase
+import com.example.diaryapp.domain.usecase.user.ResetPasswordResult
+import com.example.diaryapp.presentation.ui.event.ResetPasswordEvent
+import com.example.diaryapp.presentation.ui.uiState.ResetPasswordUiState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -21,7 +23,7 @@ class ResetPasswordViewModel @Inject constructor(
     var uiState by mutableStateOf(ResetPasswordUiState())
         private set
 
-    private val _event = MutableSharedFlow<ResetPasswordUiEvent>()
+    private val _event = MutableSharedFlow<ResetPasswordEvent>()
     val event = _event.asSharedFlow()
 
     fun initUserId(userName: String) {
@@ -70,25 +72,11 @@ class ResetPasswordViewModel @Inject constructor(
 
             when (result) {
                 is ResetPasswordResult.Success ->
-                    _event.emit(ResetPasswordUiEvent.Success)
+                    _event.emit(ResetPasswordEvent.Success)
 
                 is ResetPasswordResult.Fail ->
-                    _event.emit(ResetPasswordUiEvent.Fail(result.message))
+                    _event.emit(ResetPasswordEvent.Fail(result.message))
             }
         }
     }
-}
-
-data class ResetPasswordUiState(
-    val userId: String = "",
-    val newPw: String = "",
-    val confirmPw: String = "",
-    val isLoading: Boolean = false,
-    val pwError: String? = null,
-    val confirmPwError: String? = null,
-)
-
-sealed class ResetPasswordUiEvent {
-    object Success : ResetPasswordUiEvent()
-    data class Fail(val message: String) : ResetPasswordUiEvent()
 }

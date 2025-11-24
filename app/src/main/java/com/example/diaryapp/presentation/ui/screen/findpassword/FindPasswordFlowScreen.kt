@@ -8,12 +8,10 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.navigation.NavController
-import com.example.diaryapp.presentation.viewmodel.FindPasswordEvent
+import com.example.diaryapp.presentation.ui.event.FindPasswordEvent
 import com.example.diaryapp.presentation.viewmodel.FindPasswordViewModel
-import com.example.diaryapp.presentation.viewmodel.ResetPasswordUiEvent
+import com.example.diaryapp.presentation.ui.event.ResetPasswordEvent
 import com.example.diaryapp.presentation.viewmodel.ResetPasswordViewModel
 
 @Composable
@@ -33,10 +31,11 @@ fun FindPasswordFlowScreen(
     LaunchedEffect(Unit) {
         findViewModel.event.collect { event ->
             when (event) {
-                is FindPasswordEvent.Success ->  {
+                is FindPasswordEvent.Success -> {
                     resetViewModel.initUserId(event.id)
                     step = 2
                 }
+
                 is FindPasswordEvent.Fail -> {
                     Toast.makeText(context, event.message, Toast.LENGTH_SHORT).show()
                 }
@@ -46,13 +45,13 @@ fun FindPasswordFlowScreen(
     LaunchedEffect(Unit) {
         resetViewModel.event.collect { event ->
             when (event) {
-                is ResetPasswordUiEvent.Success -> onFindSuccess()
-                is ResetPasswordUiEvent.Fail ->
+                is ResetPasswordEvent.Success -> onFindSuccess()
+                is ResetPasswordEvent.Fail ->
                     Toast.makeText(context, event.message, Toast.LENGTH_SHORT).show()
             }
         }
     }
-    when(step) {
+    when (step) {
         1 -> {
             FindPasswordScreen(
                 id = findState.id,

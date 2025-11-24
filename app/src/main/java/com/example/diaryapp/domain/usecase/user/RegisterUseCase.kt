@@ -8,7 +8,7 @@ class RegisterUseCase @Inject constructor(
     private val repo: UserRepository
 ) {
     suspend operator fun invoke(userName: String, password: String, confirmPassword: String)
-    : RegisterResult {
+            : RegisterResult {
 
         val existingUser = repo.findUser(userName)
 

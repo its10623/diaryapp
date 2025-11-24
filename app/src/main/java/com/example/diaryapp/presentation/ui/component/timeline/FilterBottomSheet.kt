@@ -180,7 +180,8 @@ fun FilterOptionItem(text: String, selected: Boolean, onClick: () -> Unit) {
             .padding(vertical = 10.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        RadioButton(selected = selected, onClick = onClick,
+        RadioButton(
+            selected = selected, onClick = onClick,
             colors = RadioButtonDefaults.colors(
                 selectedColor = PrimaryAccent
 

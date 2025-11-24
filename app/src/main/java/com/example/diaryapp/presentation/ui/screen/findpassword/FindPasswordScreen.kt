@@ -16,7 +16,7 @@ import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.font.FontWeight.Companion.ExtraBold
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.diaryapp.presentation.ui.component.input.IdTextField
+import com.example.diaryapp.presentation.ui.component.textField.IdTextField
 import com.example.diaryapp.presentation.ui.component.card.LoginCard
 import com.example.diaryapp.presentation.ui.component.logo.Logo
 import com.example.diaryapp.presentation.ui.component.button.BackButton
@@ -26,8 +26,7 @@ import com.example.diaryapp.presentation.ui.theme.DiaryAppTheme
 import com.example.diaryapp.presentation.ui.theme.ErrorColor
 import com.example.diaryapp.presentation.ui.theme.Jua
 import com.example.diaryapp.presentation.ui.theme.PrimaryAccent
-import com.example.diaryapp.presentation.viewmodel.FindPasswordUiState
-
+import com.example.diaryapp.presentation.ui.uiState.FindPasswordUiState
 
 @Composable
 fun FindPasswordScreen(
@@ -100,7 +99,7 @@ fun FindPasswordScreen(
                             .padding(bottom = 8.dp)
                             .fillMaxWidth()
                     ) {
-                        if(uiState.idError != null){
+                        if (uiState.idError != null) {
                             Text(
                                 text = "• ${uiState.idError}",
                                 color = ErrorColor,

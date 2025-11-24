@@ -1,9 +1,7 @@
 package com.example.diaryapp.data.local.room
 
 import androidx.room.Dao
-import androidx.room.Delete
 import androidx.room.Insert
-import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Update
 import kotlinx.coroutines.flow.Flow
@@ -39,11 +37,13 @@ interface DiaryDao {
     fun getDiaryById(id: Int): Flow<DiaryEntity?>
 
 
-    @Query("""
+    @Query(
+        """
     SELECT * FROM diary
     WHERE userName = :userName
       AND (title LIKE '%' || :keyword || '%' 
-           OR content LIKE '%' || :keyword || '%')""")
+           OR content LIKE '%' || :keyword || '%')"""
+    )
     fun searchTimeline(
         userName: String,
         keyword: String

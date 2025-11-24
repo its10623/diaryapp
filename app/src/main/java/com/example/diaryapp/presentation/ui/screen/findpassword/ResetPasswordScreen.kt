@@ -18,7 +18,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.diaryapp.presentation.ui.component.card.LoginCard
 import com.example.diaryapp.presentation.ui.component.logo.Logo
-import com.example.diaryapp.presentation.ui.component.input.PasswordTextField
+import com.example.diaryapp.presentation.ui.component.textField.PasswordTextField
 import com.example.diaryapp.presentation.ui.component.button.BackButton
 import com.example.diaryapp.presentation.ui.component.button.LoginButton
 import com.example.diaryapp.presentation.ui.theme.BackGround
@@ -26,7 +26,7 @@ import com.example.diaryapp.presentation.ui.theme.DiaryAppTheme
 import com.example.diaryapp.presentation.ui.theme.ErrorColor
 import com.example.diaryapp.presentation.ui.theme.Jua
 import com.example.diaryapp.presentation.ui.theme.PrimaryAccent
-import com.example.diaryapp.presentation.viewmodel.ResetPasswordUiState
+import com.example.diaryapp.presentation.ui.uiState.ResetPasswordUiState
 
 @Composable
 fun ResetPasswordScreen(
@@ -38,7 +38,6 @@ fun ResetPasswordScreen(
     onBackClick: () -> Unit,
     uiState: ResetPasswordUiState
 ) {
-
     val focusManager = LocalFocusManager.current
 
     DiaryAppTheme {
@@ -103,7 +102,7 @@ fun ResetPasswordScreen(
                             .padding(bottom = 8.dp)
                             .fillMaxWidth()
                     ) {
-                        if(uiState.pwError != null){
+                        if (uiState.pwError != null) {
                             Text(
                                 text = "• ${uiState.pwError}",
                                 color = ErrorColor,
@@ -127,7 +126,7 @@ fun ResetPasswordScreen(
                             .padding(bottom = 16.dp)
                             .fillMaxWidth()
                     ) {
-                        if(uiState.confirmPwError != null){
+                        if (uiState.confirmPwError != null) {
                             Text(
                                 text = "• ${uiState.confirmPwError}",
                                 color = ErrorColor,

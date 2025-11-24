@@ -1,7 +1,7 @@
 package com.example.diaryapp.di
 
-import com.example.diaryapp.application.usecase.DiaryUseCase
-import com.example.diaryapp.application.usecase.DiaryUseCaseImpl
+import com.example.diaryapp.domain.usecase.diary.DiaryUseCase
+import com.example.diaryapp.domain.usecase.diary.DiaryUseCaseImpl
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn

@@ -34,7 +34,7 @@ import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.diaryapp.presentation.ui.component.EditorMode
+import com.example.diaryapp.presentation.ui.component.timeline.EditorMode
 import com.example.diaryapp.presentation.ui.component.button.BackButton
 import com.example.diaryapp.presentation.ui.component.button.LoginButton
 import com.example.diaryapp.presentation.ui.theme.BackGround
@@ -129,7 +129,7 @@ fun DiaryEditorScreen(
                 Spacer(modifier = Modifier.width(8.dp))
 
                 Text(
-                    text = if (mode == EditorMode.CREATE)"일기 작성" else "일기 수정",
+                    text = if (mode == EditorMode.CREATE) "일기 작성" else "일기 수정",
                     style = LogoTextStyle.copy(fontSize = 40.sp),
                     modifier = Modifier.align(Alignment.BottomCenter)
                 )
@@ -159,7 +159,8 @@ fun DiaryEditorScreen(
                 verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Text("날짜", color = PrimaryAccent,
+                Text(
+                    "날짜", color = PrimaryAccent,
                     modifier = Modifier
                         .align(Alignment.Start)
                 )
@@ -176,7 +177,8 @@ fun DiaryEditorScreen(
 
                 Spacer(Modifier.height(16.dp))
 
-                Text("제목", color = PrimaryAccent,
+                Text(
+                    "제목", color = PrimaryAccent,
                     modifier = Modifier
                         .align(Alignment.Start)
                 )
@@ -201,7 +203,8 @@ fun DiaryEditorScreen(
 
                 Spacer(Modifier.height(16.dp))
 
-                Text("내용", color = PrimaryAccent,
+                Text(
+                    "내용", color = PrimaryAccent,
                     modifier = Modifier
                         .align(Alignment.Start)
                 )
@@ -234,8 +237,8 @@ fun DiaryEditorScreen(
                         if (mode == EditorMode.CREATE) {
                             viewModel.writeDiary(
                                 userName = userName,
-                                folder =  folderName,
-                                title =  title,
+                                folder = folderName,
+                                title = title,
                                 content = content
                             )
                         } else {

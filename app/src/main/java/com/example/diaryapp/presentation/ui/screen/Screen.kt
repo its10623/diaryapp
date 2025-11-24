@@ -5,10 +5,20 @@ import com.example.diaryapp.R
 sealed class Screen(
     val route: String
 ) {
-    sealed class Bottom(val bottomRoute: String, val title: String, val icon: Int) : Screen(bottomRoute) {
-        object Timeline : Bottom("timeline","타임라인",R.drawable.ic_timeline)
-        object Calender : Bottom("calender", "달력", R.drawable.ic_calendar_month_24dp_e3e3e3_fill0_wght400_grad0_opsz24)
-        object Profile : Bottom("profile","프로필",R.drawable.ic_account_circle_24dp_e3e3e3_fill0_wght400_grad0_opsz24)
+    sealed class Bottom(val bottomRoute: String, val title: String, val icon: Int) :
+        Screen(bottomRoute) {
+        object Timeline : Bottom("timeline", "타임라인", R.drawable.ic_timeline)
+        object Calender : Bottom(
+            "calender",
+            "달력",
+            R.drawable.ic_calendar_month_24dp_e3e3e3_fill0_wght400_grad0_opsz24
+        )
+
+        object Profile : Bottom(
+            "profile",
+            "프로필",
+            R.drawable.ic_account_circle_24dp_e3e3e3_fill0_wght400_grad0_opsz24
+        )
     }
 
     object Main : Screen("main")

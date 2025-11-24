@@ -12,29 +12,25 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.font.FontWeight.Companion.ExtraBold
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.example.diaryapp.presentation.ui.component.input.IdTextField
+import com.example.diaryapp.presentation.ui.component.textField.IdTextField
 import com.example.diaryapp.presentation.ui.component.button.LoginButton
 import com.example.diaryapp.presentation.ui.component.card.LoginCard
 import com.example.diaryapp.presentation.ui.component.logo.Logo
-import com.example.diaryapp.presentation.ui.component.input.PasswordTextField
+import com.example.diaryapp.presentation.ui.component.textField.PasswordTextField
 import com.example.diaryapp.presentation.ui.component.button.BackButton
 import com.example.diaryapp.presentation.ui.theme.BackGround
 import com.example.diaryapp.presentation.ui.theme.ErrorColor
 import com.example.diaryapp.presentation.ui.theme.Jua
 import com.example.diaryapp.presentation.ui.theme.PrimaryAccent
-import com.example.diaryapp.presentation.viewmodel.RegisterUiEvent
+import com.example.diaryapp.presentation.ui.event.RegisterEvent
 import com.example.diaryapp.presentation.viewmodel.RegisterViewModel
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
@@ -48,13 +44,12 @@ fun SignUpScreen(
     val focusManager = LocalFocusManager.current
 
     val uiState = viewModel.uiState
-    val context = LocalContext.current
 
     LaunchedEffect(Unit) {
         viewModel.event.collect { event ->
-            when(event) {
-                is RegisterUiEvent.Success -> onSignupSuccess()
-                is RegisterUiEvent.Fail -> showToast(event.message)
+            when (event) {
+                is RegisterEvent.Success -> onSignupSuccess()
+                is RegisterEvent.Fail -> showToast(event.message)
             }
         }
     }
@@ -121,7 +116,7 @@ fun SignUpScreen(
                             .padding(bottom = 8.dp)
                             .fillMaxWidth()
                     ) {
-                        if(uiState.idError != null){
+                        if (uiState.idError != null) {
                             Text(
                                 text = "• ${uiState.idError}",
                                 color = ErrorColor,
@@ -148,7 +143,7 @@ fun SignUpScreen(
                             .padding(bottom = 8.dp)
                             .fillMaxWidth()
                     ) {
-                        if(uiState.pwError != null){
+                        if (uiState.pwError != null) {
                             Text(
                                 text = "• ${uiState.pwError}",
                                 color = ErrorColor,
@@ -173,7 +168,7 @@ fun SignUpScreen(
                             .padding(bottom = 16.dp)
                             .fillMaxWidth()
                     ) {
-                        if(uiState.confirmPwError != null){
+                        if (uiState.confirmPwError != null) {
                             Text(
                                 text = "• ${uiState.confirmPwError}",
                                 color = ErrorColor,

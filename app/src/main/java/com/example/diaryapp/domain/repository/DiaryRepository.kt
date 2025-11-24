@@ -1,6 +1,6 @@
 package com.example.diaryapp.domain.repository
 
-import com.example.diaryapp.dto.DiaryDto
+import com.example.diaryapp.data.dto.DiaryDto
 import kotlinx.coroutines.flow.Flow
 
 interface DiaryRepository {

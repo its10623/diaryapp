@@ -1,7 +1,6 @@
 package com.example.diaryapp.domain.usecase.user
 
 import com.example.diaryapp.domain.repository.UserRepository
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 class AutoLoginUseCase @Inject constructor(

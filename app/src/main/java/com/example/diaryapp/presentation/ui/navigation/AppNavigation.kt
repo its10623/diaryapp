@@ -13,8 +13,8 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
-import com.example.diaryapp.presentation.ui.component.Dialog
-import com.example.diaryapp.presentation.ui.component.EditorMode
+import com.example.diaryapp.presentation.ui.component.timeline.Dialog
+import com.example.diaryapp.presentation.ui.component.timeline.EditorMode
 import com.example.diaryapp.presentation.ui.screen.DiaryEditorScreen
 import com.example.diaryapp.presentation.ui.screen.DiaryViewScreen
 import com.example.diaryapp.presentation.ui.screen.LoginScreen
@@ -27,6 +27,7 @@ import kotlinx.coroutines.flow.collectLatest
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.navigation.compose.currentBackStackEntryAsState
+import com.example.diaryapp.presentation.ui.screen.Screen
 
 @Composable
 fun AppNavigation() {
@@ -45,7 +46,7 @@ fun AppNavigation() {
     val userName = currentBackStack
         ?.arguments
         ?.getString("userName") ?: ""
-    
+
     // 삭제 성공/실패 피드백
     LaunchedEffect(Unit) {
         diaryViewModel.deleteSuccess.collectLatest { success ->
@@ -231,9 +232,17 @@ fun AppNavigation() {
                 userName = userName,
                 viewModel = diaryViewModel,
                 onBack = { navController.popBackStack() },
-                onEdit = { diaryId -> navController.navigate(Screen.EditScreen.route.replace("{id}", diaryId.toString())) },
+                onEdit = { diaryId ->
+                    navController.navigate(
+                        Screen.EditScreen.route.replace(
+                            "{id}",
+                            diaryId.toString()
+                        )
+                    )
+                },
                 onDeleteRequest = { diaryId ->
-                    diaryViewModel.prepareDelete(diaryId) }
+                    diaryViewModel.prepareDelete(diaryId)
+                }
             )
         }
     }

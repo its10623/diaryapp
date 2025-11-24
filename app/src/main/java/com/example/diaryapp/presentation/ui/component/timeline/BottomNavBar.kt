@@ -65,7 +65,7 @@ fun BottomNavBar(
                         .padding(horizontal = 16.dp, vertical = 8.dp),
                     contentAlignment = Alignment.Center
                 ) {
-                    Column (
+                    Column(
                         verticalArrangement = Arrangement.Center,
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
@@ -83,7 +83,7 @@ fun BottomNavBar(
                             fontSize = 16.sp,
                             maxLines = 1,
 
-                        )
+                            )
                     }
                 }
             }

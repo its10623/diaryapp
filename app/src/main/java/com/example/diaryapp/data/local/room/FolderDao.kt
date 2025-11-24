@@ -21,11 +21,13 @@ interface FolderDao {
     @Query("SELECT EXISTS(SELECT 1 FROM folders WHERE userName = :userName AND name = :folderName LIMIT 1)") // New method
     suspend fun folderExists(userName: String, folderName: String): Boolean
 
-    @Query("""
+    @Query(
+        """
     SELECT * FROM diary
     WHERE userName = :userName
       AND folder = :folder
       AND (title LIKE '%' || :keyword || '%' 
-           OR content LIKE '%' || :keyword || '%')""")
+           OR content LIKE '%' || :keyword || '%')"""
+    )
     fun searchInFolder(userName: String, folder: String, keyword: String): Flow<List<DiaryEntity>>
 }

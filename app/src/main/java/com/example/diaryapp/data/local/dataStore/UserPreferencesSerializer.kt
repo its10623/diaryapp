@@ -29,7 +29,8 @@ object UserPreferencesSerializer : Serializer<List<User>> {
             ListSerializer(User.serializer()),
             t
         )
-        output.write(text.encodeToByteArray()
+        output.write(
+            text.encodeToByteArray()
         )
     }
 }

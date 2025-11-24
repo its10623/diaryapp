@@ -5,7 +5,9 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.diaryapp.application.usecase.user.RegisterUseCase
+import com.example.diaryapp.domain.usecase.user.RegisterUseCase
+import com.example.diaryapp.presentation.ui.event.RegisterEvent
+import com.example.diaryapp.presentation.ui.uiState.RegisterUiState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -20,7 +22,7 @@ class RegisterViewModel @Inject constructor(
     var uiState by mutableStateOf(RegisterUiState())
         private set
 
-    private val _event = MutableSharedFlow<RegisterUiEvent>()
+    private val _event = MutableSharedFlow<RegisterEvent>()
     val event = _event.asSharedFlow()
 
     fun onIdChange(value: String) {
@@ -51,7 +53,7 @@ class RegisterViewModel @Inject constructor(
 
                 is RegisterResult.Success -> {
                     uiState = uiState.copy(isLoading = false)
-                    _event.emit(RegisterUiEvent.Success)
+                    _event.emit(RegisterEvent.Success)
                 }
 
                 is RegisterResult.Fail -> {
@@ -59,11 +61,12 @@ class RegisterViewModel @Inject constructor(
 
                     applyFieldError(result.message)
 
-                    _event.emit(RegisterUiEvent.Fail(result.message))
+                    _event.emit(RegisterEvent.Fail(result.message))
                 }
             }
         }
     }
+
     private fun applyFieldError(msg: String) {
         when {
             "아이디" in msg -> uiState = uiState.copy(idError = msg)
@@ -76,10 +79,5 @@ class RegisterViewModel @Inject constructor(
 sealed class RegisterResult {
     object Success : RegisterResult()
     data class Fail(val message: String) : RegisterResult()
-}
-
-sealed class RegisterUiEvent {
-    object Success : RegisterUiEvent()
-    data class Fail(val message: String) : RegisterUiEvent()
 }
 

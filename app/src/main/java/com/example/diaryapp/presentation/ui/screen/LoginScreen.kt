@@ -24,15 +24,15 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.unit.dp
 import com.example.diaryapp.presentation.ui.component.card.LoginCard
-import com.example.diaryapp.presentation.ui.component.input.IdTextField
+import com.example.diaryapp.presentation.ui.component.textField.IdTextField
 import com.example.diaryapp.presentation.ui.component.button.LoginButton
 import com.example.diaryapp.presentation.ui.component.logo.Logo
-import com.example.diaryapp.presentation.ui.component.input.PasswordTextField
+import com.example.diaryapp.presentation.ui.component.textField.PasswordTextField
 import com.example.diaryapp.presentation.ui.component.button.TextOnlyButton
+import com.example.diaryapp.presentation.ui.event.LoginEvent
 import com.example.diaryapp.presentation.ui.theme.BackGround
 import com.example.diaryapp.presentation.ui.theme.ErrorColor
 import com.example.diaryapp.presentation.ui.theme.PrimaryAccent
-import com.example.diaryapp.presentation.viewmodel.LoginUiEvent
 import com.example.diaryapp.presentation.viewmodel.LoginViewModel
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
@@ -60,8 +60,8 @@ fun LoginScreen(
     LaunchedEffect(Unit) {
         viewModel.uiEvent.collect { event ->
             when (event) {
-                is LoginUiEvent.LoginSuccess -> onLoginSuccess(event.userName)
-                is LoginUiEvent.LoginFailed -> {
+                is LoginEvent.LoginSuccess -> onLoginSuccess(event.userName)
+                is LoginEvent.LoginFailed -> {
                     showToast(event.message)
                 }
             }
@@ -108,7 +108,7 @@ fun LoginScreen(
                             .padding(bottom = 6.dp)
                             .fillMaxWidth()
                     ) {
-                        if(uiState.idError != null){
+                        if (uiState.idError != null) {
                             Text(
                                 text = "• ${uiState.idError}",
                                 color = ErrorColor,
@@ -133,7 +133,7 @@ fun LoginScreen(
                             .padding(bottom = 16.dp, start = 1.dp)
                             .fillMaxWidth()
                     ) {
-                        if(uiState.pwError != null){
+                        if (uiState.pwError != null) {
                             Text(
                                 text = "• ${uiState.pwError}",
                                 color = ErrorColor,

@@ -6,7 +6,7 @@ import com.example.diaryapp.data.local.room.FolderEntity
 import com.example.diaryapp.data.mapper.toDto
 import com.example.diaryapp.data.mapper.toEntity
 import com.example.diaryapp.domain.repository.DiaryRepository
-import com.example.diaryapp.dto.DiaryDto
+import com.example.diaryapp.data.dto.DiaryDto
 import javax.inject.Inject
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
@@ -55,7 +55,11 @@ class DiaryRepositoryImpl @Inject constructor(
     override fun getFolders(userName: String): Flow<List<String>> =
         folderDao.getFolders(userName)
 
-    override fun searchInFolder(userName: String, folder: String, keyword: String): Flow<List<DiaryDto>> =
+    override fun searchInFolder(
+        userName: String,
+        folder: String,
+        keyword: String
+    ): Flow<List<DiaryDto>> =
         folderDao.searchInFolder(userName, folder, keyword).map { entities ->
             entities.map { it.toDto() }
         }

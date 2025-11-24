@@ -28,7 +28,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
@@ -36,14 +35,12 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
-import com.example.diaryapp.presentation.ui.component.Dialog
-import com.example.diaryapp.presentation.ui.component.DrawerContent
-import com.example.diaryapp.presentation.ui.component.FilterBottomSheet
-import com.example.diaryapp.presentation.ui.component.SortType
+import com.example.diaryapp.presentation.ui.component.timeline.Dialog
+import com.example.diaryapp.presentation.ui.component.timeline.DrawerContent
+import com.example.diaryapp.presentation.ui.component.timeline.FilterBottomSheet
+import com.example.diaryapp.presentation.ui.component.timeline.SortType
 import com.example.diaryapp.presentation.ui.component.button.WriteFab
-import com.example.diaryapp.presentation.ui.navigation.BottomNavBar
-import com.example.diaryapp.presentation.ui.navigation.Screen
-import com.example.diaryapp.presentation.ui.navigation.bottomNavScreen
+import com.example.diaryapp.presentation.ui.component.timeline.BottomNavBar
 import com.example.diaryapp.presentation.ui.theme.BackGround
 import com.example.diaryapp.presentation.ui.theme.BoundaryLine
 import com.example.diaryapp.presentation.ui.theme.PrimaryAccent
@@ -154,6 +151,7 @@ fun MainScreen(
                     onTrashed = {
                         scope.launch {
                             drawerState.close()
+                            // 미 구현
                         }
                     },
                     onLogout = {
@@ -167,7 +165,7 @@ fun MainScreen(
                     },
                     onSettings = {
                         scope.launch { drawerState.close() }
-                        /*TODO 설정*/
+                        // 미 구현
                     }
                 )
             }

@@ -38,7 +38,7 @@ fun DrawerContent(
     LazyColumn(
         modifier = Modifier
             .fillMaxHeight()
-    ) {//TODO 길게 터치하면 폴더명 수정, 폴더 삭제 (다이얼로그 포함)
+    ) {
         item {
             Text(
                 text = "폴더 목록",
@@ -248,9 +248,4 @@ fun DrawerContent(
             }
         }
     }
-}
-
-@Preview
-@Composable
-fun DrawerPreview() {
 }

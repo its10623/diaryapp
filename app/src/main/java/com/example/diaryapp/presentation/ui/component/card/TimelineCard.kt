@@ -96,7 +96,7 @@ fun TimelineCard(
                 modifier = Modifier
                     .combinedClickable(onClick = onClick),
 
-            ) {
+                ) {
                 MoreButton(
                     onClick = onMoreClick
                 )
@@ -112,7 +112,7 @@ fun TimelineCard(
                     shadowElevation = 4.dp,
                     containerColor = Card
 
-                    ) {
+                ) {
                     DropdownMenuItem(
                         leadingIcon = {
                             Icon(

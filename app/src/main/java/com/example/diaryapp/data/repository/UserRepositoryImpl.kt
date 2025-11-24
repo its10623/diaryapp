@@ -19,7 +19,7 @@ class UserRepositoryImpl @Inject constructor(
 
     override suspend fun register(userName: String, password: String): Boolean {
         val hash = BCrypt.hashpw(password, BCrypt.gensalt())
-        local.register(User(userName = userName, password =  hash))
+        local.register(User(userName = userName, password = hash))
         return true
     }
 
