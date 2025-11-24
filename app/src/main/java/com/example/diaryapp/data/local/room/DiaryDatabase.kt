@@ -4,8 +4,9 @@ import androidx.room.Database
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 
-@Database(entities = [DiaryEntity::class], version = 2, exportSchema = false)
+@Database(entities = [DiaryEntity::class,FolderEntity::class], version = 3, exportSchema = false)
 @TypeConverters(Converters::class)
 abstract class DiaryDatabase : RoomDatabase() {
     abstract fun diaryDao(): DiaryDao
+    abstract fun folderDao(): FolderDao
 }

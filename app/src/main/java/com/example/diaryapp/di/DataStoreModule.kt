@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.room.Room
 import com.example.diaryapp.data.local.room.DiaryDao
 import com.example.diaryapp.data.local.room.DiaryDatabase
+import com.example.diaryapp.data.local.room.FolderDao
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -30,6 +31,11 @@ object DataStoreModule {
     fun provideDiaryDao(
         db: DiaryDatabase
     ): DiaryDao = db.diaryDao()
+
+    @Provides
+    fun provideFolderDao(
+        db: DiaryDatabase
+    ): FolderDao = db.folderDao()
 
     @Provides
     @Singleton
