@@ -1,23 +1,24 @@
 package com.example.diaryapp.presentation.ui.screen
 
 import androidx.compose.runtime.Composable
-import com.example.diaryapp.domain.model.Diary
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import com.example.diaryapp.presentation.viewmodel.DiaryViewModel
 
 @Composable
 fun FolderScreen(
+    userName: String,
     folderName: String,
-    diaryList: List<Diary>,
-    searchVisible: Boolean,
-    query: String,
-    onQueryChange: (String) -> Unit,
-    onSearchOpen: () -> Unit,
-    onSearchClose: () -> Unit,
+    viewModel: DiaryViewModel,
     onMenuClick: () -> Unit,
-    onViewDiary: (Long) -> Unit,
-    onEdit: (Long) -> Unit,
-    onDelete: (Long) -> Unit,
-    onFilterClick: () -> Unit = {}
-
+    onViewDiary: (Int) -> Unit,
+    onEdit: (Int) -> Unit,
+    onFilterClick: () -> Unit = {},
+    onDeleteRequest: (Int) -> Unit
 ) {
     val diaries by viewModel.filteredFolderList.collectAsState()
     val errorMessage by viewModel.errorMessage.collectAsState()
@@ -35,16 +36,20 @@ fun FolderScreen(
 
     CommonScreen(
         title = folderName,
-        diaryList = diaryList,
+        diaryList = diaries,
         searchVisible = searchVisible,
         query = query,
-        onQueryChange = onQueryChange,
-        onSearchOpen = onSearchOpen,
-        onSearchClose = onSearchClose,
+        onQueryChange = { query = it },
+        onSearchOpen = { searchVisible = true },
+        onSearchClose = {
+            searchVisible = false
+            query = ""
+            viewModel.loadFolderDiaries(userName, folderName)
+        },
         onMenuClick = onMenuClick,
         onFilterClick = onFilterClick,
         onViewDiary = onViewDiary,
         onEdit = onEdit,
-        onDelete = onDelete
+        onDeleteRequest = onDeleteRequest
     )
 }

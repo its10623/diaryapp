@@ -58,7 +58,14 @@ fun DrawerContent(
                     .fillMaxWidth()
                     .padding(10.dp)
                     .clip(RoundedCornerShape(64.dp))
-                    .clickable { onFavorite() }
+                    .combinedClickable(
+                        onClick = {
+                            onFolderClick("즐겨찾기")
+                        },
+                        onLongClick = {
+
+                        }
+                    )
             ) {
                 Row(
                     modifier = Modifier

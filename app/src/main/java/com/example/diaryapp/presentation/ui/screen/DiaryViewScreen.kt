@@ -119,6 +119,24 @@ fun DiaryViewScreen(
                     )
 
                     Button(
+                        text = if (diary!!.isFavorite) "즐겨찾기 해제" else "즐겨찾기",
+                        icon = painterResource(
+                            if (diary!!.isFavorite) R.drawable.ic_star_filled
+                            else R.drawable.ic_star_border
+                        ),
+                        onClick = {
+                            viewModel.toggleFavoriteStatus(
+                                diary!!.id,
+                                !diary!!.isFavorite,
+                                userName
+                            )
+                        },
+                        modifier = Modifier
+                            .width(30.dp)
+                            .padding(20.dp)
+                    )
+
+                    Button(
                         text = "수정",
                         icon = painterResource(R.drawable.ic_edit_3),
                         onClick = onEdit,
