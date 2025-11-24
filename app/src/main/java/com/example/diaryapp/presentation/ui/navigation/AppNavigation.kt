@@ -1,66 +1,127 @@
 package com.example.diaryapp.presentation.ui.navigation
 
-import android.util.Log
+import android.widget.Toast
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.navigation.NavGraph.Companion.findStartDestination
+import androidx.compose.ui.platform.LocalContext
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
-import com.example.diaryapp.domain.model.Diary
 import com.example.diaryapp.presentation.ui.component.Dialog
 import com.example.diaryapp.presentation.ui.component.EditorMode
-import com.example.diaryapp.presentation.ui.screen.CalenderScreen
 import com.example.diaryapp.presentation.ui.screen.DiaryEditorScreen
 import com.example.diaryapp.presentation.ui.screen.DiaryViewScreen
-import com.example.diaryapp.presentation.ui.screen.FolderScreen
 import com.example.diaryapp.presentation.ui.screen.LoginScreen
 import com.example.diaryapp.presentation.ui.screen.MainScreen
-import com.example.diaryapp.presentation.ui.screen.ProfileScreen
 import com.example.diaryapp.presentation.ui.screen.SignUpScreen
 import com.example.diaryapp.presentation.ui.screen.findpassword.FindPasswordFlowScreen
-import java.time.LocalDate
+import com.example.diaryapp.presentation.viewmodel.DiaryViewModel
+import com.example.diaryapp.presentation.viewmodel.LoginViewModel
+import kotlinx.coroutines.flow.collectLatest
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.navigation.compose.currentBackStackEntryAsState
 
 @Composable
 fun AppNavigation() {
     val navController = rememberNavController()
+    val loginViewModel: LoginViewModel = hiltViewModel()
+    val diaryViewModel: DiaryViewModel = hiltViewModel()
 
     var showDeleteDialog by remember { mutableStateOf(false) }
+    val context = LocalContext.current // Toast를 위해 Context 가져오기
 
-    // 더미 데이터
-    val dummyList = listOf(
-        Diary(id = 1, folder = "여행", name = "test", title =  "제목1", content =  "내용111...", date = "2025년 11월 11일"),
-        Diary(id = 2, folder = "학교", name = "test", title =  "제목2", content =  "내용222", date = "2025년 11월 10일"),
-        Diary(id = 3, folder = "일상", name = "test", title =  "제목1", content =  "내용111...", date = "2025년 11월 09일"),
-        Diary(id = 4, folder = "여행", name = "test", title =  "제목1", content =  "내용111...", date = "2025년 11월 09일"),
-        Diary(id = 5, folder = "학교", name = "test", title =  "제목2", content =  "내용222", date = "2025년 11월 08일"),
-        Diary(id = 6, folder = "일상", name = "test", title =  "제목2", content =  "내용222", date = "2025년 11월 10일"),
-        Diary(id = 9, folder = "여행", name = "test", title =  "제목2", content =  "내용222", date = "2025년 11월 09일"),
-        Diary(id = 10, folder = "일상", name = "test", title =  "제목2", content =  "내용222", date = "2025년 11월 15일")
-    )
+    var currentUserName by remember { mutableStateOf<String?>(null) }
 
+    val pendingDeleteId by diaryViewModel.pendingDeleteId.collectAsState()
+
+    val currentBackStack by navController.currentBackStackEntryAsState()
+    val userName = currentBackStack
+        ?.arguments
+        ?.getString("userName") ?: ""
+    
+    // 삭제 성공/실패 피드백
+    LaunchedEffect(Unit) {
+        diaryViewModel.deleteSuccess.collectLatest { success ->
+            if (success) {
+                Toast.makeText(context, "일기가 삭제되었습니다.", Toast.LENGTH_SHORT).show()
+
+                // 현재 화면이 상세보기라면 뒤로가기
+                val route = navController.currentBackStackEntry
+                    ?.destination
+                    ?.route
+                if (route?.startsWith("ViewDiary/") == true) {
+                    navController.popBackStack()
+                }
+
+                diaryViewModel.clearPendingDelete()
+            }
+        }
+    }
+
+    LaunchedEffect(pendingDeleteId) {
+        if (pendingDeleteId != null) {
+            showDeleteDialog = true
+        } else {
+            showDeleteDialog = false
+        }
+    }
+
+    // 삭제 여부 Dialog
+    if (showDeleteDialog && pendingDeleteId != null) {
+        Dialog(
+            title = "일기를 삭제하시겠습니까?",
+            isTextField = false,
+            onDismiss = {
+                diaryViewModel.clearPendingDelete()
+                showDeleteDialog = false
+            },
+            onConfirm = {
+                pendingDeleteId?.let { idToDelete ->
+                    diaryViewModel.deleteDiary(idToDelete, currentUserName.orEmpty())
+                    showDeleteDialog = false
+                    diaryViewModel.clearPendingDelete()
+                }
+            }
+        )
+    }
+
+    LaunchedEffect(Unit) {
+        diaryViewModel.errorMessage.collectLatest { message ->
+            message?.let {
+                Toast.makeText(context, it, Toast.LENGTH_SHORT).show()
+                diaryViewModel.clearErrorMessage() // 에러 메시지 표시 후 초기화
+            }
+        }
+    }
 
     NavHost(
         navController = navController,
         startDestination = Screen.Login.route
     ) {
         composable(Screen.Login.route) {
+            val context = LocalContext.current
             LoginScreen(
-                onLoginSuccess = {
-                    navController.navigate(Screen.Main.route) {
-                        popUpTo(navController.graph.findStartDestination().id) {
+                viewModel = loginViewModel,
+                onLoginSuccess = { userName ->
+                    navController.navigate(Screen.Main.route + "/$userName") {
+                        popUpTo(Screen.Login.route) {
                             inclusive = true
                         }
                         launchSingleTop = true
                     }
                 },
                 onFindScreen = { navController.navigate(Screen.FindScreen.route) },
-                onSignupScreen = { navController.navigate(Screen.SignUp.route) }
+                onSignupScreen = { navController.navigate(Screen.SignUp.route) },
+                showToast = { message ->
+                    Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
+                }
             )
         }
         composable(Screen.FindScreen.route) {
@@ -78,75 +139,102 @@ fun AppNavigation() {
             )
         }
         composable(Screen.SignUp.route) {
+            val context = LocalContext.current
             SignUpScreen(
                 onSignupSuccess = {
                     navController.navigate(Screen.Login.route) {
-                        popUpTo(Screen.SignUp.route) { inclusive = true }
+                        popUpTo(Screen.Login.route) { inclusive = true }
                     }
                 },
                 onNavigateBack = {
                     navController.navigate(Screen.Login.route) {
                         launchSingleTop = true
                     }
+                },
+                showToast = { message ->
+                    Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
                 }
             )
         }
 
-        composable(Screen.Main.route) {
-            MainScreen(navController,dummyList)
+        composable(
+            route = Screen.Main.route + "/{userName}",
+            arguments = listOf(navArgument("userName") { type = NavType.StringType })
+        ) { backStack ->
+            val userName = backStack.arguments?.getString("userName") ?: return@composable
+
+            LaunchedEffect(userName) {
+                currentUserName = userName
+            }
+
+            MainScreen(
+                appNavController = navController,
+                userName = userName,
+                diaryViewModel = diaryViewModel,
+                loginViewModel = loginViewModel,
+            )
         }
-        composable(Screen.WriteScreen.route) {
+
+        composable(
+            route = Screen.WriteScreen.route,
+            arguments = listOf(
+                navArgument("folder") {
+                    type = NavType.StringType
+                    nullable = true
+                    defaultValue = null
+                }
+            )
+        ) { backStackEntry ->
+            val userName =
+                navController.previousBackStackEntry?.arguments?.getString("userName") ?: ""
+            val folderName = backStackEntry.arguments?.getString("folder")
+
             DiaryEditorScreen(
                 mode = EditorMode.CREATE,
-                initialTitle = "",
-                initialContent = "",
-                initialDate = LocalDate.now().toString(),
-                onSave = { _, _ -> navController.popBackStack() },
+                id = null,
+                userName = userName,
+                folderName = folderName,
+                viewModel = diaryViewModel,
+                onSave = { navController.popBackStack() },
                 onBack = { navController.popBackStack() }
             )
         }
         composable(
-            "edit/{id}",
-            arguments = listOf(navArgument("id") { type = NavType.LongType })
+            route = Screen.EditScreen.route,
+            arguments = listOf(navArgument("id") { type = NavType.IntType })
         ) { backStackEntry ->
+            val id = backStackEntry.arguments?.getInt("id") ?: return@composable
+            val userName =
+                navController.previousBackStackEntry?.arguments?.getString("userName") ?: ""
 
-            val id = backStackEntry.arguments?.getLong("id") ?: return@composable
-
-            val diary = dummyList.firstOrNull { it.id ==id }
-                ?: return@composable
             DiaryEditorScreen(
+                id = id,
                 mode = EditorMode.EDIT,
-                initialTitle = diary.title,
-                initialContent = diary.content,
-                initialDate = diary.date,
-                onSave = { _, _ -> navController.popBackStack() },
+                userName = userName,
+                folderName = null,
+                viewModel = diaryViewModel,
+                onSave = { navController.popBackStack() },
                 onBack = { navController.popBackStack() }
             )
         }
 
         composable(
-            route = "ViewDiary/{id}",
-            arguments = listOf(navArgument("id") { type = NavType.LongType })
+            route = Screen.ViewDiary.route,
+            arguments = listOf(navArgument("id") { type = NavType.IntType })
         ) { backStackEntry ->
-            val diaryId = backStackEntry.arguments?.getLong("id") ?: return@composable
+            val id = backStackEntry.arguments?.getInt("id")!!
+            val userName =
+                navController.previousBackStackEntry?.arguments?.getString("userName") ?: ""
+
             DiaryViewScreen(
-                diaryId = diaryId,
+                id = id,
+                userName = userName,
+                viewModel = diaryViewModel,
                 onBack = { navController.popBackStack() },
-                onEdit = { navController.navigate("edit/$diaryId") },
-                onDelete = { showDeleteDialog = true }
+                onEdit = { diaryId -> navController.navigate(Screen.EditScreen.route.replace("{id}", diaryId.toString())) },
+                onDeleteRequest = { diaryId ->
+                    diaryViewModel.prepareDelete(diaryId) }
             )
         }
-    }
-    // 삭제 여부 Dialog
-    if (showDeleteDialog) {
-        Dialog(
-            title = "일기를 삭제하시겠습니까?",
-            isTextField = false,
-            onDismiss = { showDeleteDialog = false },
-            onConfirm = {
-                navController.popBackStack()
-                showDeleteDialog = false
-            }
-        )
     }
 }
