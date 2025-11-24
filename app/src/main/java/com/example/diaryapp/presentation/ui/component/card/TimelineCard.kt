@@ -1,12 +1,10 @@
 package com.example.diaryapp.presentation.ui.component.card
 
-import android.view.RoundedCorner
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -14,9 +12,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.ripple.rememberRipple
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.DropdownMenu
@@ -25,18 +21,13 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.material3.ripple
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.example.diaryapp.R
 import com.example.diaryapp.presentation.ui.component.button.MoreButton
 import com.example.diaryapp.presentation.ui.theme.BoundaryLine
@@ -47,14 +38,15 @@ import com.example.diaryapp.presentation.ui.theme.PrimaryAccent
 
 @Composable
 fun TimelineCard(
+    diaryId: Int,
     title: String,
     content: String,
     onClick: () -> Unit,
     menuExpanded: Boolean,
     onMoreClick: () -> Unit,
     onDismiss: () -> Unit,
-    onEdit: () -> Unit,
-    onDelete: () -> Unit,
+    onEdit: (Int) -> Unit,
+    onDelete: (Int) -> Unit,
     modifier: Modifier = Modifier
 ) {
     Card(
@@ -69,7 +61,7 @@ fun TimelineCard(
                 interactionSource = remember { MutableInteractionSource() },
                 indication = ripple(
                     bounded = true, // 카드 안에만 ripple
-                    radius = 140.dp     //TODO 추후 clip으로 교체할지 고민
+                    radius = 140.dp
                 ),
                 onClick = onClick
             ),
@@ -131,7 +123,7 @@ fun TimelineCard(
                         },
                         text = { Text("수정하기", color = PrimaryAccent) },
                         onClick = {
-                            onEdit()
+                            onEdit(diaryId)
                         }
                     )
                     DropdownMenuItem(
@@ -144,7 +136,7 @@ fun TimelineCard(
                         },
                         text = { Text("삭제하기", color = PrimaryAccent) },
                         onClick = {
-                            onDelete()
+                            onDelete(diaryId)
                         }
                     )
                 }

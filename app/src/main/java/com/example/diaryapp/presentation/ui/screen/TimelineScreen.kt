@@ -1,21 +1,25 @@
 package com.example.diaryapp.presentation.ui.screen
 
 import androidx.compose.runtime.Composable
-import com.example.diaryapp.domain.model.Diary
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import com.example.diaryapp.presentation.ui.component.SortType
+import com.example.diaryapp.presentation.ui.component.timeline.TimelineEmptyView
+import com.example.diaryapp.presentation.viewmodel.DiaryViewModel
 
 @Composable
 fun TimelineScreen(
-    diaryList: List<Diary>,
-    searchVisible: Boolean,
-    query: String,
-    onQueryChange: (String) -> Unit,
-    onSearchOpen: () -> Unit,
-    onSearchClose: () -> Unit,
-    onViewDiary: (Long) -> Unit = {},
-    onMenuClick: () -> Unit = {},
-    onFilterClick: () -> Unit = {},
-    onEdit: (Long) -> Unit,
-    onDelete: (Long) -> Unit
+    userName: String,
+    viewModel: DiaryViewModel,
+    onMenuClick: () -> Unit,
+    onViewDiary: (Int) -> Unit,
+    onFilterClick: () -> Unit,
+    onEdit: (Int) -> Unit,
+    onDeleteRequest: (Int) -> Unit
 ) {
     val diaries by viewModel.filteredDiaryList.collectAsState()
     val errorMessage by viewModel.errorMessage.collectAsState()
@@ -35,16 +39,20 @@ fun TimelineScreen(
 
     CommonScreen(
         title = "타임라인",
-        diaryList = diaryList,
+        diaryList = diaries,
         searchVisible = searchVisible,
         query = query,
-        onQueryChange = onQueryChange,
-        onSearchOpen = onSearchOpen,
-        onSearchClose = onSearchClose,
+        onQueryChange = { query = it },
+        onSearchOpen = { searchVisible = true },
+        onSearchClose = {
+            searchVisible = false
+            query = ""
+            viewModel.loadUserDiaries(userName)
+        },
         onMenuClick = onMenuClick,
         onFilterClick = { onFilterClick() },
         onViewDiary = onViewDiary,
         onEdit = onEdit,
-        onDelete = onDelete
+        onDeleteRequest = onDeleteRequest
     )
 }
