@@ -13,5 +13,6 @@ data class DiaryEntity(
     val title: String,
     val content: String,
     val createDate: Date,
-    val updateDate: Date
+    val updateDate: Date,
+    val isFavorite: Boolean = false
 )
