@@ -135,8 +135,22 @@ fun MainScreen(
                     onFolderClick = { folder ->
                         query = ""
                         scope.launch { drawerState.close() }
-                        bottomNavController.navigate("folder/$folder") {
-                            launchSingleTop = true
+                        if (folder == "즐겨찾기") {
+                            bottomNavController.navigate(Screen.Favorites.route) {
+                                popUpTo(Screen.Bottom.Timeline.route) {
+                                    inclusive = false
+                                    saveState = true
+                                }
+                                launchSingleTop = true
+                                restoreState = true
+                            }
+                        } else {
+                            bottomNavController.navigate("folder/$folder") {
+                                popUpTo("folder/{folder}") {
+                                    inclusive = true
+                                }
+                                launchSingleTop = true
+                            }
                         }
                     },
                     onAddFolder = {
@@ -361,6 +375,28 @@ fun MainScreen(
                         onMenuClick = { scope.launch { drawerState.open() } },
                         onEdit = { id -> appNavController.navigate("edit/$id") },
                         onDelete = { showDeleteDialog = true }
+                    )
+                }
+                composable(Screen.Favorites.route) {
+                    FavoritesScreen(
+                        userName = userName,
+                        viewModel = diaryViewModel,
+                        onFilterClick = { filterSheetVisible = true },
+                        onMenuClick = { scope.launch { drawerState.open() } },
+                        onViewDiary = { id ->
+                            appNavController.navigate("ViewDiary/$id")
+                        },
+                        onEdit = { id ->
+                            appNavController.navigate(
+                                Screen.EditScreen.route.replace(
+                                    "{id}",
+                                    id.toString()
+                                )
+                            )
+                        },
+                        onDeleteRequest = { id ->
+                            diaryViewModel.prepareDelete(id)
+                        }
                     )
                 }
                 composable(Screen.Bottom.Calender.route) {
