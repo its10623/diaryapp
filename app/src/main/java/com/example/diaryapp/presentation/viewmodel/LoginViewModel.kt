@@ -7,6 +7,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.diaryapp.application.usecase.user.AutoLoginUseCase
 import com.example.diaryapp.application.usecase.user.LoginUseCase
+import com.example.diaryapp.domain.repository.UserRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -18,7 +19,8 @@ import kotlinx.coroutines.launch
 @HiltViewModel
 class LoginViewModel @Inject constructor(
     private val loginUseCase: LoginUseCase,
-    private val autoLoginUseCase: AutoLoginUseCase
+    private val autoLoginUseCase: AutoLoginUseCase,
+    private val userRepository: UserRepository
 ) : ViewModel() {
 
     private val _uiEvent = MutableSharedFlow<LoginUiEvent>()
@@ -27,10 +29,22 @@ class LoginViewModel @Inject constructor(
     var uiState by mutableStateOf(LoginUiState())
         private set
 
-    val autoLogin = autoLoginUseCase.get().stateIn(
+    val autoLogin = autoLoginUseCase.getAutoLogin().stateIn(
         viewModelScope,
         SharingStarted.WhileSubscribed(5000),
         false
+    )
+
+    val savedUserId = userRepository.getSavedUserId().stateIn(
+        viewModelScope,
+        SharingStarted.Eagerly,
+        null
+    )
+
+    val savedPasswordHash = userRepository.getSavedPasswordHash().stateIn(
+        viewModelScope,
+        SharingStarted.Eagerly,
+        null
     )
 
     fun onIdChange(value: String) {
@@ -42,31 +56,41 @@ class LoginViewModel @Inject constructor(
     }
 
     fun onAutoLoginChange(value: Boolean) {
-        uiState = uiState.copy(autoLogin = value)
+        viewModelScope.launch {
+            autoLoginUseCase.setAutoLogin(value)
+        }
+    }
+
+    suspend fun tryAutoLogin() {
+        val id = savedUserId.value
+        val hash = savedPasswordHash.value
+
+        if (id != null && hash != null) {
+            val user = userRepository.findUser(id)
+            if (user != null && user.password == hash) {
+                _uiEvent.emit(LoginUiEvent.LoginSuccess(id))
+            }
+        }
     }
 
     fun login() {
         val id = uiState.userName
         val pw = uiState.password
 
-        // 아이디 검증
         if (id.isBlank()) {
             uiState = uiState.copy(idError = "아이디를 입력해주세요")
             return
         }
-        // 길이 검증
         if (id.length !in 4..20) {
             uiState = uiState.copy(idError = "아이디는 4~20자여야 합니다.")
             return
         }
 
-        // 특수문자 검증
         if (!id.all { it.isLetterOrDigit() }) {
             uiState = uiState.copy(idError = "특수문자는 사용할 수 없습니다.")
             return
         }
 
-        // 비밀번호 검증
         if (pw.length < 8) {
             uiState = uiState.copy(pwError = "비밀번호는 8자리 이상이어야 합니다.")
             return
@@ -79,21 +103,25 @@ class LoginViewModel @Inject constructor(
         viewModelScope.launch {
             uiState = uiState.copy(isLoading = true)
 
-            val success = loginUseCase(uiState.userName, uiState.password)
+            val success = loginUseCase(id, pw)
 
             uiState = uiState.copy(isLoading = false)
             if (success) {
-                autoLoginUseCase.set(uiState.autoLogin)
+                val user = userRepository.findUser(id)!!
+                autoLoginUseCase.saveUserId(id)
+                autoLoginUseCase.savePasswordHash(user.password)
+
                 _uiEvent.emit(LoginUiEvent.LoginSuccess(id))
             } else {
                 _uiEvent.emit(LoginUiEvent.LoginFailed("아이디 또는 비밀번호가 올바르지 않습니다."))
             }
         }
     }
-    fun logout() {
-        viewModelScope.launch {
-            autoLoginUseCase.set(false)
-        }
+
+    suspend fun logout() {
+        autoLoginUseCase.setAutoLogin(false)
+        autoLoginUseCase.saveUserId(null)
+        autoLoginUseCase.savePasswordHash(null)
     }
 }
 
@@ -105,7 +133,6 @@ sealed class LoginUiEvent {
 data class LoginUiState(
     val userName: String = "",
     val password: String = "",
-    val autoLogin: Boolean = false,
     val idError: String? = null,
     val pwError: String? = null,
     val isLoading: Boolean = false

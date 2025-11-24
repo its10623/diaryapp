@@ -7,6 +7,12 @@ import javax.inject.Inject
 class AutoLoginUseCase @Inject constructor(
     private val repo: UserRepository
 ) {
-    fun get(): Flow<Boolean> = repo.getAutoLogin()
-    suspend fun set(value: Boolean) = repo.setAutoLogin(value)
+    fun getAutoLogin(): Flow<Boolean> = repo.getAutoLogin()
+    suspend fun setAutoLogin(value: Boolean) = repo.setAutoLogin(value)
+
+    fun getSavedUserId(): Flow<String?> = repo.getSavedUserId()
+    suspend fun saveUserId(id: String?) = repo.saveUserId(id)
+
+    fun getSavedPasswordHash(): Flow<String?> = repo.getSavedPasswordHash()
+    suspend fun savePasswordHash(hash: String?) = repo.savePasswordHash(hash)
 }

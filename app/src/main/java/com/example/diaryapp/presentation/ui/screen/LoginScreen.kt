@@ -18,9 +18,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalFocusManager
@@ -52,13 +50,9 @@ fun LoginScreen(
     val uiState = viewModel.uiState
     val focusManager = LocalFocusManager.current
 
-    // 자동 로그인
-    var checked by remember { mutableStateOf(false) }
-
     LaunchedEffect(autoLogin) {
-        if (!checked && autoLogin) {
-            checked = true
-            viewModel.login()
+        if (autoLogin) {
+            viewModel.tryAutoLogin()
         }
     }
 
@@ -159,9 +153,8 @@ fun LoginScreen(
                         modifier = Modifier.padding(start = 200.dp, bottom = 10.dp)
                     ) {
                         Checkbox(
-                            checked = uiState.autoLogin,
+                            checked = autoLogin,
                             onCheckedChange = viewModel::onAutoLoginChange,
-                            enabled = true,
                             colors = CheckboxDefaults.colors(
                                 checkedColor = PrimaryAccent,
                                 uncheckedColor = PrimaryAccent,
