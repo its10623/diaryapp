@@ -39,7 +39,18 @@ class DiaryUseCaseImpl @Inject constructor(
     override fun getDiariesByFolder(userName: String, folder: String): Flow<List<DiaryDto>> =
         diaryRepository.getDiariesByFolder(userName, folder)
 
-    override fun searchInFolder(userName: String, folder: String, keyword: String): Flow<List<DiaryDto>> =
+    override fun getFavoriteDiaries(userName: String): Flow<List<DiaryDto>> =
+        diaryRepository.getFavoriteDiaries(userName)
+
+    override suspend fun toggleFavoriteStatus(id: Int, isFavorite: Boolean) {
+        diaryRepository.toggleFavoriteStatus(id, isFavorite)
+    }
+
+    override fun searchInFolder(
+        userName: String,
+        folder: String,
+        keyword: String
+    ): Flow<List<DiaryDto>> =
         diaryRepository.searchInFolder(userName, folder, keyword)
 
     override fun searchTimeline(userName: String, keyword: String): Flow<List<DiaryDto>> =
@@ -53,7 +64,18 @@ class DiaryUseCaseImpl @Inject constructor(
 
     override suspend fun renameFolder(userName: String, oldName: String, newName: String) {
         val folders = diaryRepository.getFolders(userName).first()
-        // folderValidator.validateFolderName(newName, folders) // Assuming validator checks the new name
+        folderValidator.validateFolderName(newName, folders)
         diaryRepository.renameFolder(userName, oldName, newName)
+    }
+
+    override suspend fun addFolder(userName: String, folderName: String) {
+
+        folderValidator.validateFolderName(folderName, emptyList())
+
+        if (diaryRepository.folderExists(userName, folderName)) {
+            throw IllegalArgumentException("이미 존재하는 폴더명입니다.")
+        }
+
+        diaryRepository.addFolder(userName, folderName)
     }
 }

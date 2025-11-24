@@ -1,6 +1,8 @@
 package com.example.diaryapp.data.repository
 
 import com.example.diaryapp.data.local.room.DiaryDao
+import com.example.diaryapp.data.local.room.FolderDao
+import com.example.diaryapp.data.local.room.FolderEntity
 import com.example.diaryapp.data.mapper.toDto
 import com.example.diaryapp.data.mapper.toEntity
 import com.example.diaryapp.domain.repository.DiaryRepository
@@ -10,7 +12,8 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
 class DiaryRepositoryImpl @Inject constructor(
-    private val diaryDao: DiaryDao
+    private val diaryDao: DiaryDao,
+    private val folderDao: FolderDao
 ) : DiaryRepository {
 
     override fun getDiaryById(id: Int): Flow<DiaryDto?> =
@@ -40,11 +43,20 @@ class DiaryRepositoryImpl @Inject constructor(
             entities.map { it.toDto() }
         }
 
+    override fun getFavoriteDiaries(userName: String): Flow<List<DiaryDto>> =
+        diaryDao.getFavoriteDiaries(userName).map { entities ->
+            entities.map { it.toDto() }
+        }
+
+    override suspend fun toggleFavoriteStatus(id: Int, isFavorite: Boolean) {
+        diaryDao.updateFavoriteStatus(id, isFavorite)
+    }
+
     override fun getFolders(userName: String): Flow<List<String>> =
-        diaryDao.getFolders(userName)
+        folderDao.getFolders(userName)
 
     override fun searchInFolder(userName: String, folder: String, keyword: String): Flow<List<DiaryDto>> =
-        diaryDao.searchInFolder(userName, folder, keyword).map { entities ->
+        folderDao.searchInFolder(userName, folder, keyword).map { entities ->
             entities.map { it.toDto() }
         }
 
@@ -59,6 +71,19 @@ class DiaryRepositoryImpl @Inject constructor(
         }
 
     override suspend fun renameFolder(userName: String, oldName: String, newName: String) {
-        diaryDao.renameFolder(userName, oldName, newName)
+        folderDao.renameFolder(userName, oldName, newName)
+    }
+
+    override suspend fun addFolder(userName: String, folderName: String) {
+        folderDao.insertFolder(
+            FolderEntity(
+                userName = userName,
+                name = folderName
+            )
+        )
+    }
+
+    override suspend fun folderExists(userName: String, folderName: String): Boolean { // New method
+        return folderDao.folderExists(userName, folderName)
     }
 }
