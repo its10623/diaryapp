@@ -94,6 +94,26 @@ fun MainScreen(
         dummyList.map { LocalDate.parse(it.date, formatter) }
     }
 
+    var showExitDialog by remember { mutableStateOf(false) }
+
+    // 뒤로가기 시 처리
+    BackHandler(enabled = currentRoute == Screen.Bottom.Timeline.route) {
+        showExitDialog = true
+    }
+    val context = LocalContext.current
+
+    if (showExitDialog) {
+        Dialog(
+            title = "앱을 종료하시겠습니까?",
+            isTextField = false,
+            onDismiss = { showExitDialog = false },
+            onConfirm = {
+                showExitDialog = false
+                (context as Activity).finish()
+            }
+        )
+    }
+
     ModalNavigationDrawer(
         drawerState = drawerState,
         drawerContent = {
