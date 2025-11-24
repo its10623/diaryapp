@@ -26,4 +26,4 @@ val DisableButtonText = Color(0xff757575)
 
 val ButtonText = Color(0xfff5f5f5)
 val TextHint = Color(0xffb3b3b3)
-val ErrorColor = Color(0xFFFF0000)
+val ErrorColor = Color(0xFFE53935)
