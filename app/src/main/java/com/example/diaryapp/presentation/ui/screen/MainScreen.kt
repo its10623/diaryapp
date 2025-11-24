@@ -1,7 +1,8 @@
 package com.example.diaryapp.presentation.ui.screen
 
-import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.background
+
+import android.app.Activity
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -17,20 +18,24 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import com.example.diaryapp.domain.model.Diary
+import androidx.navigation.navArgument
 import com.example.diaryapp.presentation.ui.component.Dialog
 import com.example.diaryapp.presentation.ui.component.DrawerContent
 import com.example.diaryapp.presentation.ui.component.FilterBottomSheet
@@ -42,9 +47,12 @@ import com.example.diaryapp.presentation.ui.navigation.bottomNavScreen
 import com.example.diaryapp.presentation.ui.theme.BackGround
 import com.example.diaryapp.presentation.ui.theme.BoundaryLine
 import com.example.diaryapp.presentation.ui.theme.PrimaryAccent
+import com.example.diaryapp.presentation.viewmodel.DiaryViewModel
+import com.example.diaryapp.presentation.viewmodel.FilterScope
+import com.example.diaryapp.presentation.viewmodel.LoginViewModel
 import kotlinx.coroutines.launch
-import java.time.LocalDate
-import java.time.format.DateTimeFormatter
+import java.time.Instant
+import java.time.ZoneId
 
 @Composable
 fun MainScreen(
@@ -57,15 +65,6 @@ fun MainScreen(
     val currentBackStack by bottomNavController.currentBackStackEntryAsState()
     val currentRoute = currentBackStack?.destination?.route
 
-    val folderList = remember {
-        mutableStateListOf(
-            "모든 일기",
-            "여행",
-            "학교",
-            "일상",
-        )
-    }
-
     var showAddFolderDialog by remember { mutableStateOf(false) }
 
     // 검색
@@ -75,23 +74,16 @@ fun MainScreen(
     val drawerState = rememberDrawerState(DrawerValue.Closed)
     val scope = rememberCoroutineScope()
 
-    // 검색 관련
-    var searchVisible by remember { mutableStateOf(false) }
-    var query by remember { mutableStateOf("") }
-
     // 필터 상태
-    var selectedDates by remember { mutableStateOf(setOf<LocalDate>()) }
-    var sortType by remember { mutableStateOf(SortType.RECENT) }
     var filterSheetVisible by remember { mutableStateOf(false) }
 
     // FAB 스크롤 상태
     val listState = rememberLazyListState()
 
-    val formatter = DateTimeFormatter.ofPattern("yyyy년 MM월 dd일")
-
-    // 날짜 리스트 (바텀시트에 넘길용)
-    val diaryDates = remember(dummyList) {
-        dummyList.map { LocalDate.parse(it.date, formatter) }
+    val folders by diaryViewModel.folders.collectAsState()
+    LaunchedEffect(Unit) {
+        diaryViewModel.loadFolders(userName)
+        diaryViewModel.loadUserDiaries(userName)
     }
 
     var showExitDialog by remember { mutableStateOf(false) }
@@ -131,7 +123,7 @@ fun MainScreen(
                     ),
             ) {
                 DrawerContent(
-                    folders = folderList,
+                    folders = folders,
                     onFolderClick = { folder ->
                         query = ""
                         scope.launch { drawerState.close() }
@@ -159,18 +151,19 @@ fun MainScreen(
                             showAddFolderDialog = true
                         }
                     },
-                    onFavorite = {
-                        scope.launch { drawerState.close() }
-                        /*TODO 즐겨찾기*/
-                    },
                     onTrashed = {
                         scope.launch {
                             drawerState.close()
                         }
                     },
                     onLogout = {
-                        scope.launch { drawerState.close() }
-                        /*TODO 로그아웃*/
+                        scope.launch {
+                            loginViewModel.logout()
+                            appNavController.navigate(Screen.Login.route) {
+                                popUpTo(0) { inclusive = true }
+                                launchSingleTop = true
+                            }
+                        }
                     },
                     onSettings = {
                         scope.launch { drawerState.close() }
@@ -182,16 +175,28 @@ fun MainScreen(
     ) {
         Scaffold(
             floatingActionButton = {
-                if (currentRoute in listOf(
+                if (currentRoute?.startsWith("folder/") == true ||
+                    currentRoute in listOf(
                         Screen.Bottom.Timeline.route,
                         Screen.Bottom.Calender.route,
-                        Screen.Bottom.Profile.route,
-                    ) || currentRoute?.startsWith("folder/") == true
+                        Screen.Bottom.Profile.route
+                    )
                 ) {
                     WriteFab(
                         listState = listState,
                         onWrite = {
-                            appNavController.navigate(Screen.WriteScreen.route)
+                            diaryViewModel.clearSelected()
+                            val currentScreenRoute =
+                                bottomNavController.currentBackStackEntry?.destination?.route
+                            if (currentScreenRoute?.startsWith("folder/") == true) {
+                                val folderName =
+                                    bottomNavController.currentBackStackEntry?.arguments?.getString(
+                                        "folder"
+                                    ) ?: ""
+                                appNavController.navigate("editor?folder=$folderName")
+                            } else {
+                                appNavController.navigate("editor")
+                            }
                         }
                     )
                 }
@@ -279,35 +284,6 @@ fun MainScreen(
                 modifier = Modifier.padding(paddingValues)
             ) {
                 composable(Screen.Bottom.Timeline.route) {
-                    val timelineDiaries = remember(query, selectedDates, sortType) {
-                        dummyList
-                            .filter { diary ->
-                                if (query.isBlank()) true
-                                else diary.title.contains(query) || diary.content.contains(query)
-                            }
-                            .filter { diary ->
-                                if (selectedDates.isEmpty()) {
-                                    true
-                                } else {
-                                    LocalDate.parse(diary.date, formatter) in selectedDates
-                                }
-                            }
-                            .let { list ->
-                                when (sortType) {
-                                    SortType.NONE -> list
-                                    SortType.RECENT -> list.sortedByDescending { d ->
-                                        LocalDate.parse(
-                                            d.date, formatter
-                                        )
-                                    }
-
-                                    SortType.OLD -> list.sortedBy { d ->
-                                        LocalDate.parse(d.date, formatter)
-                                    }
-                                }
-                            }
-                    }
-
                     TimelineScreen(
                         userName = userName,
                         viewModel = diaryViewModel,
@@ -315,66 +291,55 @@ fun MainScreen(
                             diaryViewModel.setFilterScope(FilterScope.TIMELINE)
                             filterSheetVisible = true
                         },
-                        onSearchOpen = { searchVisible = true },
-                        onFilterClick = { filterSheetVisible = true },
                         onMenuClick = { scope.launch { drawerState.open() } },
                         onViewDiary = { id ->
                             appNavController.navigate("ViewDiary/$id")
                         },
-                        onEdit = { id -> appNavController.navigate("edit/$id") },
-                        onDelete = { showDeleteDialog = true },
+                        onEdit = { id ->
+                            appNavController.navigate(
+                                Screen.EditScreen.route.replace(
+                                    "{id}",
+                                    id.toString()
+                                )
+                            )
+                        },
+                        onDeleteRequest = { id ->
+                            diaryViewModel.prepareDelete(id)
+                        },
                     )
                 }
-                composable("folder/{folder}") { backStackEntry ->
-                    val folderName = backStackEntry.arguments?.getString("folder") ?: "모든 일기"
-
-                    val folderDiaries = remember(folderName, query, selectedDates, sortType) {
-                        dummyList
-                            .filter {
-                                if (folderName == "모든 일기") true
-                                else it.folder == folderName
-                            }
-                            .filter { diary ->
-                                if (query.isBlank()) true
-                                else diary.title.contains(query) || diary.content.contains(query)
-                            }
-                            .filter { diary ->
-                                if (selectedDates.isEmpty()) {
-                                    true
-                                } else {
-                                    LocalDate.parse(diary.date, formatter) in selectedDates
-                                }
-                            }
-                            .let { list ->
-                                when (sortType) {
-                                    SortType.NONE -> list
-                                    SortType.RECENT -> list.sortedByDescending { d ->
-                                        LocalDate.parse(
-                                            d.date, formatter
-                                        )
-                                    }
-
-                                    SortType.OLD -> list.sortedBy { d ->
-                                        LocalDate.parse(d.date, formatter)
-                                    }
-                                }
-                            }
-                    }
+                composable(
+                    route = "folder/{folder}",
+                    arguments = listOf(
+                        navArgument("folder") { type = NavType.StringType }
+                    )
+                ) { backStackEntry ->
+                    val folderName =
+                        backStackEntry.arguments?.getString("folder") ?: ""
 
                     FolderScreen(
+                        userName = userName,
                         folderName = folderName,
                         viewModel = diaryViewModel,
                         onFilterClick = {
                             diaryViewModel.setFilterScope(FilterScope.FOLDER)
                             filterSheetVisible = true
                         },
-                        onFilterClick = { filterSheetVisible = true },
                         onViewDiary = { id ->
                             appNavController.navigate("ViewDiary/$id")
                         },
                         onMenuClick = { scope.launch { drawerState.open() } },
-                        onEdit = { id -> appNavController.navigate("edit/$id") },
-                        onDelete = { showDeleteDialog = true }
+                        onEdit = { id ->
+                            appNavController.navigate(
+                                Screen.EditScreen.route.replace(
+                                    "{id}",
+                                    id.toString()
+                                )
+                            )
+                        },
+                        onDeleteRequest = { id ->
+                            diaryViewModel.prepareDelete(id)
+                        }
                     )
                 }
                 composable(Screen.Favorites.route) {
@@ -422,27 +387,13 @@ fun MainScreen(
                 Dialog(
                     title = "새 폴더 생성",
                     label = "폴더 이름",
-
                     confirmText = "생성",
                     onDismiss = { showAddFolderDialog = false },
                     onConfirm = { newFolder ->
                         if (newFolder.isNotBlank()) {
-                            folderList.add(newFolder)
+                            diaryViewModel.addFolder(userName, newFolder)
                         }
                         showAddFolderDialog = false
-                    }
-                )
-            }
-            if (showDeleteDialog) {
-                Dialog(
-                    title = "일기를 삭제하시겠습니까?",
-                    isTextField = false,
-                    onDismiss = { showDeleteDialog = false },
-                    onConfirm = { newFolder ->
-                        if (newFolder.isNotBlank()) {
-                            folderList.add(newFolder)
-                        }
-                        showDeleteDialog = false
                     }
                 )
             }
