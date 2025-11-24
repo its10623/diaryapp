@@ -1,7 +1,10 @@
 package com.example.diaryapp.domain.model
 
+import kotlinx.serialization.Serializable
+
+@Serializable
 data class User(
     val id: Long = System.currentTimeMillis(),
-    val name: String,
+    val userName: String,
     val password: String,
 )
