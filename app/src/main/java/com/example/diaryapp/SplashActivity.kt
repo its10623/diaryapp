@@ -7,8 +7,8 @@ import androidx.activity.compose.setContent
 import androidx.core.view.WindowCompat
 import com.example.diaryapp.presentation.ui.screen.SplashScreen
 import com.example.diaryapp.presentation.ui.theme.DiaryAppTheme
-
-
+import dagger.hilt.android.AndroidEntryPoint
+@AndroidEntryPoint
 class SplashActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
 
