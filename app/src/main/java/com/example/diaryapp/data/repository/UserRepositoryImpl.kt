@@ -34,6 +34,18 @@ class UserRepositoryImpl @Inject constructor(
     override suspend fun setAutoLogin(value: Boolean) =
         local.saveAutoLogin(value)
 
+    override fun getSavedUserId(): Flow<String?> =
+        local.getSavedUserId()
+
+    override suspend fun saveUserId(id: String?) =
+        local.saveUserId(id ?: "")
+
+    override fun getSavedPasswordHash(): Flow<String?> =
+        local.getPasswordHash()
+
+    override suspend fun savePasswordHash(hash: String?) =
+        local.savePasswordHash(hash ?: "")
+
     override suspend fun updatePassword(userName: String, newPassword: String): Boolean {
         val user = findUser(userName) ?: return false
         val newHash = BCrypt.hashpw(newPassword, BCrypt.gensalt())

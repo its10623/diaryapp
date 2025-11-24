@@ -10,5 +10,10 @@ interface UserRepository {
     suspend fun login(userName: String, password: String): Boolean
     fun getAutoLogin(): Flow<Boolean>
     suspend fun setAutoLogin(value: Boolean)
+    fun getSavedUserId(): Flow<String?>
+    suspend fun saveUserId(id: String?)
+
+    fun getSavedPasswordHash(): Flow<String?>
+    suspend fun savePasswordHash(hash: String?)
     suspend fun updatePassword(userName: String, newPassword: String): Boolean
 }
