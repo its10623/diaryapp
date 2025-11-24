@@ -1,4 +1,4 @@
-package com.example.diaryapp.presentation.ui.navigation
+package com.example.diaryapp.presentation.ui.screen
 
 import com.example.diaryapp.R
 
@@ -20,7 +20,6 @@ sealed class Screen(
     object EditScreen : Screen("edit/{id}") // 기존 일기 수정 경로로 수정
     object ViewDiary : Screen("ViewDiary/{id}")
     object Favorites : Screen("favorites_screen")
-
 }
 
 val bottomNavScreen = listOf(

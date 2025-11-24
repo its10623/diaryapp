@@ -1,4 +1,4 @@
-package com.example.diaryapp.application.validator
+package com.example.diaryapp.domain.validator
 
 interface DiaryValidator {
     fun validateTitleInput(title: String)

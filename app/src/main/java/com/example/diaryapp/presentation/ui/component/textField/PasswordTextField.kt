@@ -1,4 +1,4 @@
-package com.example.diaryapp.presentation.ui.component.input
+package com.example.diaryapp.presentation.ui.component.textField
 
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -15,6 +15,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.diaryapp.presentation.ui.theme.BoundaryLine
@@ -24,7 +25,7 @@ import com.example.diaryapp.presentation.ui.theme.TextHintStyle
 import com.example.diaryapp.presentation.ui.theme.inter
 
 @Composable
-fun IdTextField(
+fun PasswordTextField(
     value: String,
     onValueChange: (String) -> Unit,
     label: String,
@@ -39,6 +40,7 @@ fun IdTextField(
         onValueChange = { onValueChange(it) },
         // 엔터누르면 키보드 다운
         keyboardActions = KeyboardActions(onDone = { focusManager.clearFocus() }),
+        // 엔터를 Done으로 교체
         keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
         label = {
             Text(
@@ -56,6 +58,7 @@ fun IdTextField(
             color = PrimaryAccent,
             fontSize = 16.sp
         ),
+        visualTransformation = PasswordVisualTransformation(),
         shape = RoundedCornerShape(12.dp),
         colors = TextFieldDefaults.colors(
             focusedIndicatorColor = PrimaryAccent,

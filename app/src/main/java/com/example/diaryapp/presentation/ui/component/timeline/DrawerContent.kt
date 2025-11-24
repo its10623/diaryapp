@@ -1,13 +1,11 @@
-package com.example.diaryapp.presentation.ui.component
+package com.example.diaryapp.presentation.ui.component.timeline
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -25,14 +23,12 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.diaryapp.R
-import com.example.diaryapp.presentation.ui.theme.BackGround
 import com.example.diaryapp.presentation.ui.theme.PrimaryAccent
 import com.example.diaryapp.presentation.ui.theme.TextHint
 
 @Composable
 fun DrawerContent(
     folders: List<String>,
-    onFavorite: () -> Unit = {},
     onFolderClick: (String) -> Unit = {},
     onAddFolder: () -> Unit = {},
     onTrashed: () -> Unit = {},
@@ -52,6 +48,7 @@ fun DrawerContent(
                 color = PrimaryAccent
             )
         }
+        //
         item {
             Box(
                 modifier = Modifier
@@ -74,7 +71,7 @@ fun DrawerContent(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Icon(
-                        painter = painterResource(R.drawable.ic_favorite_24dp_e3e3e3_fill0_wght400_grad0_opsz24),
+                        painter = painterResource(R.drawable.ic_star_border),
                         contentDescription = null,
                         tint = PrimaryAccent,
                         modifier = Modifier.size(26.dp)

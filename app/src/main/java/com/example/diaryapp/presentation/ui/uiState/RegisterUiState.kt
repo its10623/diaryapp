@@ -1,4 +1,4 @@
-package com.example.diaryapp.presentation.viewmodel
+package com.example.diaryapp.presentation.ui.uiState
 
 data class RegisterUiState(
     val id: String = "",

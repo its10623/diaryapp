@@ -1,4 +1,4 @@
-package com.example.diaryapp.dto
+package com.example.diaryapp.data.dto
 
 import java.util.Date
 

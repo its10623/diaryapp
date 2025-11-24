@@ -1,4 +1,4 @@
-package com.example.diaryapp.application.validator
+package com.example.diaryapp.domain.validator
 
 interface FolderValidator {
     fun validateFolderName(name: String, existingFolders: List<String>)

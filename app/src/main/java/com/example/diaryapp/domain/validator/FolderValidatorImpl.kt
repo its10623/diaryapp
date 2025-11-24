@@ -1,4 +1,4 @@
-package com.example.diaryapp.application.validator
+package com.example.diaryapp.domain.validator
 
 class FolderValidatorImpl : FolderValidator {
     override fun validateFolderName(

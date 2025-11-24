@@ -1,4 +1,4 @@
-package com.example.diaryapp.application.usecase.user
+package com.example.diaryapp.domain.usecase.user
 
 import com.example.diaryapp.domain.repository.UserRepository
 import dagger.hilt.android.lifecycle.HiltViewModel

@@ -1,4 +1,4 @@
-package com.example.diaryapp.presentation.ui.component
+package com.example.diaryapp.presentation.ui.component.timeline
 
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding

@@ -1,9 +1,9 @@
-package com.example.diaryapp.application.usecase
+package com.example.diaryapp.domain.usecase.diary
 
-import com.example.diaryapp.application.validator.DiaryValidator
-import com.example.diaryapp.application.validator.FolderValidator
+import com.example.diaryapp.domain.validator.DiaryValidator
+import com.example.diaryapp.domain.validator.FolderValidator
 import com.example.diaryapp.domain.repository.DiaryRepository
-import com.example.diaryapp.dto.DiaryDto
+import com.example.diaryapp.data.dto.DiaryDto
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import javax.inject.Inject
