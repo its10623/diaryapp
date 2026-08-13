@@ -24,17 +24,30 @@ object UserKeys {
     val USER_ID = stringPreferencesKey("user_id")
     val PASSWORD_HASH = stringPreferencesKey("password_hash")
     val AUTO_LOGIN = booleanPreferencesKey("auto_login")
+
+    // 구글 로그인용
+    val IS_LOGGED_IN = booleanPreferencesKey("is_logged_in")
+    val LOGIN_TYPE = stringPreferencesKey("login_type")
+    val USER_EMAIL = stringPreferencesKey("user_email")
+    val ACCESS_TOKEN = stringPreferencesKey("access_token")
 }
 
 class UserLocalDataSource @Inject constructor(
     private val context: Context
 ) {
-
-    fun getAllUsers(): Flow<List<User>> =
-        context.usersDataStore.data
-
-    suspend fun findUser(userName: String): User? =
-        context.usersDataStore.data.first().find { it.userName == userName }
+    suspend fun saveUserLogin(
+        email: String,
+        token: String,
+        loginType: String, // "EMAIL" 또는 "GOOGLE"을 인자로 받음
+        isLoggedIn: Boolean = true
+    ) {
+        context.settingsDataStore.edit { preferences ->
+            preferences[UserKeys.USER_EMAIL] = email
+            preferences[UserKeys.ACCESS_TOKEN] = token
+            preferences[UserKeys.LOGIN_TYPE] = loginType // 타입을 저장!
+            preferences[UserKeys.IS_LOGGED_IN] = isLoggedIn
+        }
+    }
 
     suspend fun register(user: User) {
         context.usersDataStore.updateData { users ->

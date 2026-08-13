@@ -12,8 +12,12 @@ interface UserRepository {
     suspend fun setAutoLogin(value: Boolean)
     fun getSavedUserId(): Flow<String?>
     suspend fun saveUserId(id: String?)
-
     fun getSavedPasswordHash(): Flow<String?>
     suspend fun savePasswordHash(hash: String?)
     suspend fun updatePassword(userName: String, newPassword: String): Boolean
+    suspend fun saveGoogleLoginInfo(email: String, idToken: String)
+    fun getLoginStatus(): Flow<Boolean>
+    fun getLoginType(): Flow<String?>
+    fun getUserEmail(): Flow<String?>
+    suspend fun clearLoginInfo()
 }

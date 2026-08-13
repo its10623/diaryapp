@@ -27,6 +27,12 @@ class UserRepositoryImpl @Inject constructor(
         val user = local.findUser(userName) ?: return false
         return BCrypt.checkpw(password, user.password)
     }
+    override suspend fun saveGoogleLoginInfo(email: String, idToken: String) {
+        local.saveLoginStatus(true)
+        local.setLoginType("GOOGLE")
+        local.setUserEmail(email)
+        local.setToken(idToken)
+    }
 
     override fun getAutoLogin(): Flow<Boolean> =
         local.getAutoLogin()
@@ -53,5 +59,18 @@ class UserRepositoryImpl @Inject constructor(
 
         local.updateUser(updateUser)
         return true
+    }
+
+    override fun getLoginStatus(): Flow<Boolean> =
+        local.getLoginStatus()
+
+    override fun getLoginType(): Flow<String?> =
+        local.getLoginType()
+
+    override fun getUserEmail(): Flow<String?> =
+        local.getUserEmail()
+
+    override suspend fun clearLoginInfo() {
+        local.clearSettings()
     }
 }
