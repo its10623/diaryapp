@@ -1,6 +1,8 @@
 package com.example.diaryapp.domain.validator
 
-class DiaryValidateImpl : DiaryValidator {
+import javax.inject.Inject
+
+class DiaryValidateImpl @Inject constructor() : DiaryValidator {
     override fun validateTitleInput(title: String) {
         validateTextBlank(title, TITLE_EMPTY)
         validateTitleRange(title, TITLE_RANGE)

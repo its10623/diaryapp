@@ -1,6 +1,8 @@
 package com.example.diaryapp.domain.validator
 
-class FolderValidatorImpl : FolderValidator {
+import javax.inject.Inject
+
+class FolderValidatorImpl @Inject constructor() : FolderValidator {
     override fun validateFolderName(
         name: String,
         existingFolders: List<String>

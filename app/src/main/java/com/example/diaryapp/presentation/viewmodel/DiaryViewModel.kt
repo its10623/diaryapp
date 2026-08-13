@@ -3,7 +3,7 @@ package com.example.diaryapp.presentation.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.diaryapp.domain.usecase.diary.DiaryUseCase
-import com.example.diaryapp.data.dto.DiaryDto
+import com.example.diaryapp.domain.model.Diary
 import com.example.diaryapp.presentation.ui.component.timeline.SortType
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -40,12 +40,12 @@ class DiaryViewModel @Inject constructor(
     val deleteSuccess = _deleteSuccess.asSharedFlow()
 
     // 다이어리 리스트 상태
-    private val _diaryList = MutableStateFlow(emptyList<DiaryDto>())
-    val diaryList: StateFlow<List<DiaryDto>> = _diaryList.asStateFlow()
+    private val _diaryList = MutableStateFlow(emptyList<Diary>())
+    val diaryList: StateFlow<List<Diary>> = _diaryList.asStateFlow()
 
     // 폴더 리스트 상태
-    private val _folderDiaryList = MutableStateFlow<List<DiaryDto>>(emptyList())
-    val folderDiaryList: StateFlow<List<DiaryDto>> = _folderDiaryList.asStateFlow()
+    private val _folderDiaryList = MutableStateFlow<List<Diary>>(emptyList())
+    val folderDiaryList: StateFlow<List<Diary>> = _folderDiaryList.asStateFlow()
 
     private val _timelineSort = MutableStateFlow(SortType.RECENT)
     val timelineSortType = _timelineSort.asStateFlow()
@@ -59,7 +59,7 @@ class DiaryViewModel @Inject constructor(
     private val _folderDates = MutableStateFlow<Set<LocalDate>>(emptySet())
     val folderDates = _folderDates.asStateFlow()
 
-    private val _selectedDiary = MutableStateFlow<DiaryDto?>(null)
+    private val _selectedDiary = MutableStateFlow<Diary?>(null)
     val selectedDiary = _selectedDiary.asStateFlow()
 
     private val _activeFilter = MutableStateFlow(false)
@@ -81,7 +81,7 @@ class DiaryViewModel @Inject constructor(
     val currentFilterScope = _currentFilterScope.asStateFlow()
 
     // 타임라인 스크린 적용 필터
-    val filteredDiaryList: StateFlow<List<DiaryDto>> =
+    val filteredDiaryList: StateFlow<List<Diary>> =
         combine(
             _diaryList,
             _timelineSort,
@@ -117,7 +117,7 @@ class DiaryViewModel @Inject constructor(
         )
 
     // 폴더 스크린 적용 필터
-    val filteredFolderList: StateFlow<List<DiaryDto>> =
+    val filteredFolderList: StateFlow<List<Diary>> =
         combine(
             _folderDiaryList,
             _folderSort,
@@ -220,7 +220,7 @@ class DiaryViewModel @Inject constructor(
         }
     }
 
-    fun writeDiary(diary: DiaryDto) {
+    fun writeDiary(diary: Diary) {
         viewModelScope.launch {
             try {
                 diaryUseCase.writeDiary(diary)
@@ -240,7 +240,7 @@ class DiaryViewModel @Inject constructor(
     ) {
         viewModelScope.launch {
             val now = java.util.Date()
-            val diary = DiaryDto(
+            val diary = Diary(
                 userName = userName,
                 folder = folder,
                 title = title,
@@ -252,7 +252,7 @@ class DiaryViewModel @Inject constructor(
         }
     }
 
-    fun updateDiary(diary: DiaryDto) {
+    fun updateDiary(diary: Diary) {
         viewModelScope.launch {
             try {
                 diaryUseCase.updateDiary(diary)

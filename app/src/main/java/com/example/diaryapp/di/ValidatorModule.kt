@@ -4,21 +4,21 @@ import com.example.diaryapp.domain.validator.DiaryValidateImpl
 import com.example.diaryapp.domain.validator.DiaryValidator
 import com.example.diaryapp.domain.validator.FolderValidator
 import com.example.diaryapp.domain.validator.FolderValidatorImpl
+import dagger.Binds
 import dagger.Module
-import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import javax.inject.Singleton
 
 @Module
 @InstallIn(SingletonComponent::class)
-object ValidatorModule {
+abstract class ValidatorModule {
 
-    @Provides
+    @Binds
     @Singleton
-    fun provideDiaryValidator(): DiaryValidator = DiaryValidateImpl()
+    abstract fun bindDiaryValidator(impl: DiaryValidateImpl): DiaryValidator
 
-    @Provides
+    @Binds
     @Singleton
-    fun provideFolderValidator(): FolderValidator = FolderValidatorImpl()
+    abstract fun bindFolderValidator(impl: FolderValidatorImpl): FolderValidator
 }
