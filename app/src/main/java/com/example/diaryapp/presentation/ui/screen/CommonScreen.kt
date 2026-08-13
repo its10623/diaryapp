@@ -37,7 +37,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.diaryapp.R
-import com.example.diaryapp.data.dto.DiaryDto
+import com.example.diaryapp.domain.model.Diary
 import com.example.diaryapp.presentation.ui.component.timeline.DateHeader
 import com.example.diaryapp.presentation.ui.component.timeline.DiarySearchBar
 import com.example.diaryapp.presentation.ui.component.timeline.TimelineIndicator
@@ -52,7 +52,7 @@ import java.time.ZoneId
 @Composable
 fun CommonScreen(
     title: String,
-    diaryList: List<DiaryDto>,
+    diaryList: List<Diary>,
     searchVisible: Boolean,
     query: String,
     onQueryChange: (String) -> Unit,

@@ -55,12 +55,6 @@ class UserLocalDataSource @Inject constructor(
         }
     }
 
-    suspend fun updateUser(updated: User) {
-        context.usersDataStore.updateData { users ->
-            users.map { if (it.userName == updated.userName) updated else it }
-        }
-    }
-
     suspend fun saveUserId(id: String) {
         context.settingsDataStore.edit { prefs ->
             prefs[UserKeys.USER_ID] = id
@@ -70,16 +64,67 @@ class UserLocalDataSource @Inject constructor(
     fun getSavedUserId(): Flow<String?> =
         context.settingsDataStore.data.map { it[UserKeys.USER_ID] }
 
+    suspend fun setLoginType(type: String) {
+        context.settingsDataStore.edit { prefs ->
+            prefs[UserKeys.LOGIN_TYPE] = type
+        }
+    }
+
+    suspend fun setUserEmail(email: String) {
+        context.settingsDataStore.edit { prefs ->
+            prefs[UserKeys.USER_EMAIL] = email
+        }
+    }
+
+    suspend fun setToken(token: String) {
+        context.settingsDataStore.edit { prefs ->
+            prefs[UserKeys.ACCESS_TOKEN] = token
+        }
+    }
+
+    suspend fun saveLoginStatus(isLoggedIn: Boolean) {
+        context.settingsDataStore.edit { prefs ->
+            prefs[UserKeys.IS_LOGGED_IN] = isLoggedIn
+        }
+    }
+
+    fun getLoginStatus(): Flow<Boolean> =
+        context.settingsDataStore.data.map { prefs ->
+            prefs[UserKeys.IS_LOGGED_IN] ?: false
+        }
+
+    fun getLoginType(): Flow<String?> =
+        context.settingsDataStore.data.map { prefs ->
+            prefs[UserKeys.LOGIN_TYPE]
+        }
+
+    fun getUserEmail(): Flow<String?> =
+        context.settingsDataStore.data.map { prefs ->
+            prefs[UserKeys.USER_EMAIL]
+        }
+
+    fun getAllUsers(): Flow<List<User>> =
+        context.usersDataStore.data
+
+    suspend fun findUser(userName: String): User? =
+        context.usersDataStore.data.first().find { it.userName == userName }
+
+    suspend fun updateUser(updated: User) {
+        context.usersDataStore.updateData { users ->
+            users.map { if (it.userName == updated.userName) updated else it }
+        }
+    }
+
     fun getPasswordHash(): Flow<String?> =
         context.settingsDataStore.data.map {
             it[UserKeys.PASSWORD_HASH]
         }
-
     suspend fun savePasswordHash(hash: String) {
         context.settingsDataStore.edit { prefs ->
             prefs[UserKeys.PASSWORD_HASH] = hash
         }
     }
+
 
     fun getAutoLogin(): Flow<Boolean> =
         context.settingsDataStore.data.map { prefs ->
@@ -99,5 +144,4 @@ class UserLocalDataSource @Inject constructor(
     suspend fun clearAllUsers() {
         context.usersDataStore.updateData { emptyList() }
     }
-
 }

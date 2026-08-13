@@ -1,250 +1,231 @@
 package com.example.diaryapp.presentation.ui.component.timeline
 
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.Icon
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.diaryapp.R
+import com.example.diaryapp.presentation.ui.theme.BackGround
+import com.example.diaryapp.presentation.ui.theme.Border1
+import com.example.diaryapp.presentation.ui.theme.ButtonText
 import com.example.diaryapp.presentation.ui.theme.PrimaryAccent
-import com.example.diaryapp.presentation.ui.theme.TextHint
+import com.example.diaryapp.presentation.ui.theme.SansFamily
+import com.example.diaryapp.presentation.ui.theme.TextSub2
 
 @Composable
 fun DrawerContent(
     folders: List<String>,
+    onClose: () -> Unit,
+    onWriteDiary: () -> Unit,
     onFolderClick: (String) -> Unit = {},
     onAddFolder: () -> Unit = {},
     onTrashed: () -> Unit = {},
     onSettings: () -> Unit = {},
     onLogout: () -> Unit = {}
 ) {
-    LazyColumn(
+    Column(
         modifier = Modifier
+            .fillMaxWidth()
             .fillMaxHeight()
+            .background(BackGround)
     ) {
-        item {
+        // Header
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 20.dp, vertical = 16.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
             Text(
-                text = "폴더 목록",
-                modifier = Modifier
-                    .padding(20.dp),
-                fontSize = 22.sp,
-                color = PrimaryAccent
+                text = "폴더",
+                style = TextStyle(
+                    fontFamily = SansFamily,
+                    fontWeight = FontWeight.SemiBold,
+                    fontSize = 16.sp,
+                    color = PrimaryAccent
+                )
+            )
+            Text(
+                text = "×",
+                style = TextStyle(
+                    fontFamily = SansFamily,
+                    fontSize = 20.sp,
+                    color = TextSub2
+                ),
+                modifier = Modifier.clickable(
+                    interactionSource = remember { MutableInteractionSource() },
+                    indication = null,
+                    onClick = onClose
+                )
             )
         }
-        //
-        item {
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(10.dp)
-                    .clip(RoundedCornerShape(64.dp))
-                    .combinedClickable(
-                        onClick = {
-                            onFolderClick("즐겨찾기")
-                        },
-                        onLongClick = {
 
-                        }
-                    )
-            ) {
-                Row(
-                    modifier = Modifier
-                        .padding(start = 20.dp),
-                    horizontalArrangement = Arrangement.Start,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Icon(
-                        painter = painterResource(R.drawable.ic_star_border),
-                        contentDescription = null,
-                        tint = PrimaryAccent,
-                        modifier = Modifier.size(26.dp)
-                    )
-                    Text(
-                        text = "즐겨찾기",
-                        modifier = Modifier
-                            .padding(12.dp),
-                        fontSize = 18.sp,
-                        color = PrimaryAccent
-                    )
-                }
-            }
-        }
-        folders.forEach { folder ->
+        HorizontalDivider(color = Border1)
+
+        LazyColumn(modifier = Modifier.weight(1f)) {
+            // 즐겨찾기 pill - black filled
             item {
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(10.dp)
-                        .clip(RoundedCornerShape(64.dp))
-                        .clickable { onFolderClick(folder) },
+                        .padding(horizontal = 20.dp, vertical = 8.dp)
+                        .clip(RoundedCornerShape(50.dp))
+                        .background(PrimaryAccent)
+                        .clickable { onFolderClick("즐겨찾기") }
+                        .padding(horizontal = 16.dp, vertical = 10.dp)
                 ) {
-                    Row(
-                        modifier = Modifier
-                            .padding(start = 20.dp),
-                        horizontalArrangement = Arrangement.Start,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Icon(
-                            painter = painterResource(R.drawable.ic_folder),
-                            contentDescription = null,
-                            tint = PrimaryAccent,
-                            modifier = Modifier.size(26.dp)
+                    Text(
+                        text = "즐겨찾기",
+                        style = TextStyle(
+                            fontFamily = SansFamily,
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 14.sp,
+                            color = ButtonText
                         )
-                        Text(
-                            text = folder,
-                            modifier = Modifier
-                                .padding(12.dp),
-                            fontSize = 18.sp,
+                    )
+                }
+            }
+
+            // Folder items (text only, no icons)
+            folders.forEach { folder ->
+                item {
+                    Text(
+                        text = folder,
+                        style = TextStyle(
+                            fontFamily = SansFamily,
+                            fontSize = 15.sp,
                             color = PrimaryAccent
-                        )
-                    }
-                }
-            }
-        }
-        item {
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(10.dp)
-                    .clip(RoundedCornerShape(64.dp))
-                    .clickable { onAddFolder() },
-            ) {
-                Row(
-                    modifier = Modifier
-                        .padding(start = 20.dp),
-                    horizontalArrangement = Arrangement.Start,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Icon(
-                        painter = painterResource(R.drawable.ic_folder_plus),
-                        contentDescription = null,
-                        tint = PrimaryAccent,
-                        modifier = Modifier.size(26.dp)
-                    )
-                    Text(
-                        text = "폴더 추가",
+                        ),
                         modifier = Modifier
-                            .padding(12.dp),
-                        fontSize = 18.sp,
-                        color = PrimaryAccent
+                            .fillMaxWidth()
+                            .padding(horizontal = 20.dp, vertical = 12.dp)
+                            .clickable { onFolderClick(folder) }
                     )
                 }
             }
-        }
-        item {
-            HorizontalDivider(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(10.dp),
-                thickness = 2.dp,
-                color = TextHint
-            )
-        }
-        item {
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(10.dp)
-                    .clip(RoundedCornerShape(64.dp))
-                    .clickable { onTrashed() },
-            ) {
-                Row(
-                    horizontalArrangement = Arrangement.Start,
-                    verticalAlignment = Alignment.CenterVertically,
+
+            // Divider
+            item {
+                HorizontalDivider(
+                    color = Border1,
+                    modifier = Modifier.padding(16.dp)
+                )
+            }
+
+            // Settings items
+            item {
+                Text(
+                    text = "설정",
+                    style = TextStyle(
+                        fontFamily = SansFamily,
+                        fontWeight = FontWeight.Normal,
+                        fontSize = 14.sp,
+                        color = TextSub2
+                    ),
                     modifier = Modifier
-                        .padding(start = 20.dp)
-                ) {
-                    Icon(
-                        painter = painterResource(R.drawable.ic_delete),
-                        contentDescription = null,
-                        tint = PrimaryAccent,
-                        modifier = Modifier.size(26.dp)
-                    )
-                    Text(
-                        text = "휴지통",
-                        modifier = Modifier
-                            .padding(12.dp),
-                        fontSize = 18.sp,
-                        color = PrimaryAccent
-                    )
-                }
+                        .fillMaxWidth()
+                        .padding(horizontal = 20.dp, vertical = 12.dp)
+                        .clickable { onSettings() }
+                )
+            }
+            item {
+                Text(
+                    text = "휴지통",
+                    style = TextStyle(
+                        fontFamily = SansFamily,
+                        fontWeight = FontWeight.Normal,
+                        fontSize = 14.sp,
+                        color = TextSub2
+                    ),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 20.dp, vertical = 12.dp)
+                        .clickable { onTrashed() }
+                )
+            }
+            item {
+                Text(
+                    text = "로그아웃",
+                    style = TextStyle(
+                        fontFamily = SansFamily,
+                        fontWeight = FontWeight.Normal,
+                        fontSize = 14.sp,
+                        color = TextSub2
+                    ),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 20.dp, vertical = 12.dp)
+                        .clickable { onLogout() }
+                )
             }
         }
-        item {
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(10.dp)
-                    .clip(RoundedCornerShape(64.dp))
-                    .clickable { onSettings() },
+
+        // Bottom buttons (fixed at bottom)
+        Column(
+            modifier = Modifier.padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            OutlinedButton(
+                onClick = onAddFolder,
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(50.dp),
+                border = BorderStroke(1.dp, PrimaryAccent),
+                colors = ButtonDefaults.outlinedButtonColors(
+                    containerColor = Color.Transparent,
+                    contentColor = PrimaryAccent
+                )
             ) {
-                Row(
-                    modifier = Modifier
-                        .padding(start = 20.dp),
-                    horizontalArrangement = Arrangement.Start,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Icon(
-                        painter = painterResource(R.drawable.ic_settings_24dp_e3e3e3_fill0_wght400_grad0_opsz24),
-                        contentDescription = null,
-                        tint = PrimaryAccent,
-                        modifier = Modifier.size(26.dp)
+                Text(
+                    text = "+ 폴더 생성",
+                    style = TextStyle(
+                        fontFamily = SansFamily,
+                        fontWeight = FontWeight.Medium,
+                        fontSize = 14.sp
                     )
-                    Text(
-                        text = "설정",
-                        modifier = Modifier
-                            .padding(12.dp),
-                        fontSize = 18.sp,
-                        color = PrimaryAccent
-                    )
-                }
+                )
             }
-        }
-        item {
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(10.dp)
-                    .clip(RoundedCornerShape(64.dp))
-                    .clickable { onLogout() },
+
+            Button(
+                onClick = onWriteDiary,
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(50.dp),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = PrimaryAccent,
+                    contentColor = ButtonText
+                )
             ) {
-                Row(
-                    modifier = Modifier
-                        .padding(start = 20.dp),
-                    horizontalArrangement = Arrangement.Start,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Icon(
-                        painter = painterResource(R.drawable.ic_logout),
-                        contentDescription = null,
-                        tint = PrimaryAccent,
-                        modifier = Modifier.size(26.dp)
+                Text(
+                    text = "일기 작성",
+                    style = TextStyle(
+                        fontFamily = SansFamily,
+                        fontWeight = FontWeight.SemiBold,
+                        fontSize = 14.sp
                     )
-                    Text(
-                        text = "로그아웃",
-                        modifier = Modifier
-                            .padding(12.dp),
-                        fontSize = 18.sp,
-                        color = PrimaryAccent
-                    )
-                }
+                )
             }
         }
     }

@@ -1,5 +1,6 @@
 package com.example.diaryapp.presentation.ui.navigation
 
+import android.net.Uri
 import android.widget.Toast
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -36,16 +37,11 @@ fun AppNavigation() {
     val diaryViewModel: DiaryViewModel = hiltViewModel()
 
     var showDeleteDialog by remember { mutableStateOf(false) }
-    val context = LocalContext.current // Toast를 위해 Context 가져오기
+    val context = LocalContext.current
 
     var currentUserName by remember { mutableStateOf<String?>(null) }
 
     val pendingDeleteId by diaryViewModel.pendingDeleteId.collectAsState()
-
-    val currentBackStack by navController.currentBackStackEntryAsState()
-    val userName = currentBackStack
-        ?.arguments
-        ?.getString("userName") ?: ""
 
     // 삭제 성공/실패 피드백
     LaunchedEffect(Unit) {
@@ -110,8 +106,9 @@ fun AppNavigation() {
             val context = LocalContext.current
             LoginScreen(
                 viewModel = loginViewModel,
-                onLoginSuccess = { userName ->
-                    navController.navigate(Screen.Main.route + "/$userName") {
+                onLoginSuccess = { currentUserKey ->
+                    val encodedUserKey = Uri.encode(currentUserKey)
+                    navController.navigate("main/$encodedUserKey") {
                         popUpTo(Screen.Login.route) {
                             inclusive = true
                         }
@@ -162,15 +159,15 @@ fun AppNavigation() {
             route = Screen.Main.route + "/{userName}",
             arguments = listOf(navArgument("userName") { type = NavType.StringType })
         ) { backStack ->
-            val userName = backStack.arguments?.getString("userName") ?: return@composable
+            val currentUserKey = Uri.decode(backStack.arguments?.getString("userName") ?: return@composable)
 
-            LaunchedEffect(userName) {
-                currentUserName = userName
+            LaunchedEffect(currentUserKey) {
+                currentUserName = currentUserKey
             }
 
             MainScreen(
                 appNavController = navController,
-                userName = userName,
+                userName = currentUserKey,
                 diaryViewModel = diaryViewModel,
                 loginViewModel = loginViewModel,
             )
@@ -186,8 +183,7 @@ fun AppNavigation() {
                 }
             )
         ) { backStackEntry ->
-            val userName =
-                navController.previousBackStackEntry?.arguments?.getString("userName") ?: ""
+            val userName = currentUserName ?: return@composable
             val folderName = backStackEntry.arguments?.getString("folder")
 
             DiaryEditorScreen(
@@ -205,8 +201,7 @@ fun AppNavigation() {
             arguments = listOf(navArgument("id") { type = NavType.IntType })
         ) { backStackEntry ->
             val id = backStackEntry.arguments?.getInt("id") ?: return@composable
-            val userName =
-                navController.previousBackStackEntry?.arguments?.getString("userName") ?: ""
+            val userName = currentUserName ?: return@composable
 
             DiaryEditorScreen(
                 id = id,
@@ -224,8 +219,7 @@ fun AppNavigation() {
             arguments = listOf(navArgument("id") { type = NavType.IntType })
         ) { backStackEntry ->
             val id = backStackEntry.arguments?.getInt("id")!!
-            val userName =
-                navController.previousBackStackEntry?.arguments?.getString("userName") ?: ""
+            val userName = currentUserName ?: return@composable
 
             DiaryViewScreen(
                 id = id,

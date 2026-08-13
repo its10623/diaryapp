@@ -4,21 +4,23 @@ import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -32,15 +34,22 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.diaryapp.presentation.ui.component.timeline.EditorMode
-import com.example.diaryapp.presentation.ui.component.button.BackButton
 import com.example.diaryapp.presentation.ui.component.button.LoginButton
 import com.example.diaryapp.presentation.ui.theme.BackGround
-import com.example.diaryapp.presentation.ui.theme.LogoTextStyle
+import com.example.diaryapp.presentation.ui.theme.Border1
+import com.example.diaryapp.presentation.ui.theme.DiaryContentStyle
+import com.example.diaryapp.presentation.ui.theme.DiaryTitleStyle
+import com.example.diaryapp.presentation.ui.theme.LabelTrackingStyle
 import com.example.diaryapp.presentation.ui.theme.PrimaryAccent
-import com.example.diaryapp.presentation.ui.theme.inter
+import com.example.diaryapp.presentation.ui.theme.SansFamily
+import com.example.diaryapp.presentation.ui.theme.TextSub1
+import com.example.diaryapp.presentation.ui.theme.TextSub2
+import com.example.diaryapp.presentation.ui.theme.TextSub3
 import com.example.diaryapp.presentation.viewmodel.DiaryViewModel
 import kotlinx.coroutines.flow.collectLatest
 import java.time.Instant
@@ -117,26 +126,8 @@ fun DiaryEditorScreen(
     }
 
     Scaffold(
-        topBar = {
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-            ) {
-                BackButton(
-                    onBack,
-                    Modifier.align(Alignment.TopStart)
-                )
-                Spacer(modifier = Modifier.width(8.dp))
-
-                Text(
-                    text = if (mode == EditorMode.CREATE) "일기 작성" else "일기 수정",
-                    style = LogoTextStyle.copy(fontSize = 40.sp),
-                    modifier = Modifier.align(Alignment.BottomCenter)
-                )
-            }
-        },
-        modifier = Modifier
-            .fillMaxSize()
+        modifier = Modifier.fillMaxSize(),
+        containerColor = BackGround
     ) { padding ->
         Box(
             Modifier
@@ -147,92 +138,134 @@ fun DiaryEditorScreen(
                     interactionSource = remember { MutableInteractionSource() }
                 ) {
                     focusManager.clearFocus()
-                },
-            contentAlignment = Alignment.Center
+                }
         ) {
             Column(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(horizontal = 24.dp)
                     .padding(padding)
-                    .verticalScroll(rememberScrollState()),
-                verticalArrangement = Arrangement.Center,
-                horizontalAlignment = Alignment.CenterHorizontally
+                    .padding(horizontal = 24.dp)
+                    .verticalScroll(rememberScrollState())
             ) {
-                Text(
-                    "날짜", color = PrimaryAccent,
-                    modifier = Modifier
-                        .align(Alignment.Start)
-                )
-                OutlinedTextField(
-                    value = date,
-                    onValueChange = {},
-                    textStyle = TextStyle(
-                        color = PrimaryAccent,
-                    ),
-                    readOnly = true,
-                    modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(18.dp)
-                )
-
                 Spacer(Modifier.height(16.dp))
 
-                Text(
-                    "제목", color = PrimaryAccent,
-                    modifier = Modifier
-                        .align(Alignment.Start)
+                // Header row: back + title
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = "←",
+                        style = TextStyle(
+                            fontFamily = SansFamily,
+                            fontSize = 20.sp,
+                            color = PrimaryAccent
+                        ),
+                        modifier = Modifier.clickable(
+                            indication = null,
+                            interactionSource = remember { MutableInteractionSource() }
+                        ) { onBack() }
+                    )
+                    Spacer(Modifier.weight(1f))
+                    Text(
+                        text = if (mode == EditorMode.CREATE) "일기 작성" else "일기 수정",
+                        style = TextStyle(
+                            fontFamily = SansFamily,
+                            fontWeight = FontWeight.SemiBold,
+                            fontSize = 16.sp,
+                            color = PrimaryAccent
+                        )
+                    )
+                    Spacer(Modifier.weight(1f))
+                }
+
+                Spacer(Modifier.height(24.dp))
+
+                // Date row with serif italic
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text(
+                        text = date,
+                        style = DiaryContentStyle.copy(
+                            fontStyle = FontStyle.Italic,
+                            color = TextSub1
+                        )
+                    )
+                    Spacer(Modifier.width(6.dp))
+                    Text(
+                        text = "▾",
+                        style = TextStyle(
+                            fontFamily = SansFamily,
+                            fontSize = 13.sp,
+                            color = TextSub2
+                        )
+                    )
+                }
+
+                HorizontalDivider(
+                    color = Border1,
+                    thickness = 0.5.dp,
+                    modifier = Modifier.padding(vertical = 12.dp)
                 )
-                OutlinedTextField(
+
+                // Title section
+                Text(text = "제목", style = LabelTrackingStyle)
+                TextField(
                     value = title,
                     onValueChange = { title = it },
                     modifier = Modifier.fillMaxWidth(),
                     singleLine = true,
-                    textStyle = TextStyle(
-                        fontFamily = inter,
-                        color = PrimaryAccent,
-                        fontSize = 16.sp
-                    ),
+                    textStyle = DiaryTitleStyle.copy(fontSize = 20.sp),
                     placeholder = {
                         Text(
-                            text = "제목을 입력하세요",
-                            color = Color.Gray
+                            "일기 제목을 입력하세요",
+                            style = DiaryTitleStyle.copy(fontSize = 20.sp, color = TextSub3)
                         )
                     },
-                    shape = RoundedCornerShape(18.dp)
+                    colors = TextFieldDefaults.colors(
+                        focusedContainerColor = Color.Transparent,
+                        unfocusedContainerColor = Color.Transparent,
+                        focusedIndicatorColor = PrimaryAccent,
+                        unfocusedIndicatorColor = Border1,
+                        cursorColor = PrimaryAccent,
+                    )
                 )
 
-                Spacer(Modifier.height(16.dp))
-
-                Text(
-                    "내용", color = PrimaryAccent,
-                    modifier = Modifier
-                        .align(Alignment.Start)
+                HorizontalDivider(
+                    color = Border1,
+                    thickness = 0.5.dp,
+                    modifier = Modifier.padding(vertical = 12.dp)
                 )
-                OutlinedTextField(
+
+                // Content section
+                Text(text = "내용", style = LabelTrackingStyle)
+                TextField(
                     value = content,
                     onValueChange = { content = it },
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(420.dp),
+                        .heightIn(min = 320.dp),
+                    textStyle = DiaryContentStyle,
                     placeholder = {
                         Text(
-                            text = "내용을 입력하세요",
-                            color = Color.Gray
+                            "오늘의 이야기를 적어보세요",
+                            style = DiaryContentStyle.copy(color = TextSub3)
                         )
                     },
-                    textStyle = TextStyle(
-                        fontFamily = inter,
-                        color = PrimaryAccent,
-                        fontSize = 16.sp
-                    ),
                     maxLines = Int.MAX_VALUE,
-                    shape = RoundedCornerShape(18.dp),
+                    colors = TextFieldDefaults.colors(
+                        focusedContainerColor = Color.Transparent,
+                        unfocusedContainerColor = Color.Transparent,
+                        focusedIndicatorColor = Color.Transparent,
+                        unfocusedIndicatorColor = Color.Transparent,
+                        cursorColor = PrimaryAccent,
+                    )
                 )
 
-                Spacer(Modifier.height(24.dp))
+                Spacer(Modifier.height(32.dp))
 
+                // Save button
                 LoginButton(
-                    text = if (mode == EditorMode.CREATE) "저장" else "수정 완료",
+                    text = if (mode == EditorMode.CREATE) "저  장" else "수정 완료",
                     onClick = {
                         if (mode == EditorMode.CREATE) {
                             viewModel.writeDiary(
@@ -253,9 +286,10 @@ fun DiaryEditorScreen(
                             }
                         }
                     },
-                    enabled = title.isNotBlank()
-                            && content.isNotBlank()
+                    enabled = title.isNotBlank() && content.isNotBlank()
                 )
+
+                Spacer(Modifier.height(40.dp))
             }
         }
     }

@@ -21,13 +21,15 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.example.diaryapp.R
-import com.example.diaryapp.presentation.ui.theme.DiaryContentStyle
 import com.example.diaryapp.presentation.ui.theme.PrimaryAccent
+import com.example.diaryapp.presentation.ui.theme.SansFamily
 import com.example.diaryapp.presentation.ui.theme.SearchDrag
-import com.example.diaryapp.presentation.ui.theme.inter
+import com.example.diaryapp.presentation.ui.theme.TextSub2
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -71,7 +73,7 @@ fun DiarySearchBar(
 
         placeholder = {
             if (value.isEmpty()) {
-                Text("검색할 키워드를 입력해주세요", color = Color.Gray)
+                Text("검색할 키워드를 입력해주세요", color = TextSub2)
             }
         },
 
@@ -82,7 +84,6 @@ fun DiarySearchBar(
                 tint = PrimaryAccent,
                 modifier = Modifier
                     .size(35.dp)
-
             )
         },
         modifier = Modifier
@@ -91,8 +92,10 @@ fun DiarySearchBar(
             .focusRequester(focusRequester),        // 스크린에서 검색창 클릭시 키보드 호출
 
         singleLine = true,
-        textStyle = DiaryContentStyle.copy(
-            fontFamily = inter
+        textStyle = TextStyle(
+            fontFamily = SansFamily,
+            fontSize = 15.sp,
+            color = PrimaryAccent
         ),
         shape = RoundedCornerShape(30.dp),
         colors = TextFieldDefaults.colors(

@@ -7,7 +7,7 @@ sealed class Screen(
 ) {
     sealed class Bottom(val bottomRoute: String, val title: String, val icon: Int) :
         Screen(bottomRoute) {
-        object Timeline : Bottom("timeline", "타임라인", R.drawable.ic_timeline)
+        object Timeline : Bottom("timeline", "홈", R.drawable.ic_timeline)
         object Calender : Bottom(
             "calender",
             "달력",

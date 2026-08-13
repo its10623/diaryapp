@@ -15,6 +15,7 @@ import javax.inject.Inject
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
@@ -22,7 +23,7 @@ import kotlinx.coroutines.launch
 class LoginViewModel @Inject constructor(
     private val loginUseCase: LoginUseCase,
     private val autoLoginUseCase: AutoLoginUseCase,
-    private val userRepository: UserRepository
+    private val userRepository: UserRepository,
 ) : ViewModel() {
 
     private val _uiEvent = MutableSharedFlow<LoginEvent>()
@@ -49,6 +50,28 @@ class LoginViewModel @Inject constructor(
         null
     )
 
+    fun loginWithGoogle(email: String, idToken: String) {
+        viewModelScope.launch {
+            try {
+                uiState = uiState.copy(isLoading = true)
+
+                userRepository.saveGoogleLoginInfo(
+                    email = email,
+                    idToken = idToken
+                )
+
+                _uiEvent.emit(LoginEvent.LoginSuccess(email))
+            } catch (e: Exception) {
+                _uiEvent.emit(
+                    LoginEvent.LoginFailed("구글 로그인에 실패했습니다.")
+                )
+            } finally {
+                uiState = uiState.copy(isLoading = false)
+            }
+        }
+    }
+
+
     fun onIdChange(value: String) {
         uiState = uiState.copy(userName = value, idError = null)
     }
@@ -59,19 +82,38 @@ class LoginViewModel @Inject constructor(
 
     fun onAutoLoginChange(value: Boolean) {
         viewModelScope.launch {
+            uiState = uiState.copy()
             autoLoginUseCase.setAutoLogin(value)
         }
     }
 
     suspend fun tryAutoLogin() {
-        val id = savedUserId.value
-        val hash = savedPasswordHash.value
+        try {
+            val isLoggedIn = userRepository.getLoginStatus().first()
+            val loginType = userRepository.getLoginType().first()
+            val email = userRepository.getUserEmail().first()
 
-        if (id != null && hash != null) {
-            val user = userRepository.findUser(id)
-            if (user != null && user.password == hash) {
-                _uiEvent.emit(LoginEvent.LoginSuccess(id))
+            if (isLoggedIn && loginType == "GOOGLE" && !email.isNullOrBlank()) {
+                _uiEvent.emit(LoginEvent.LoginSuccess(email))
+                return
             }
+
+            val id = savedUserId.value
+            val hash = savedPasswordHash.value
+
+            if (!id.isNullOrBlank() && !hash.isNullOrBlank()) {
+                val user = userRepository.findUser(id)
+                if (user != null && user.password == hash) {
+                    _uiEvent.emit(LoginEvent.LoginSuccess(id))
+                    return
+                }
+            }
+
+            // 자동 로그인 실패 시 로그인 화면 표시
+            uiState = uiState.copy(isCheckingAutoLogin = false)
+        } catch (e: Exception) {
+            uiState = uiState.copy(isCheckingAutoLogin = false)
+            _uiEvent.emit(LoginEvent.LoginFailed("자동 로그인 확인에 실패했습니다."))
         }
     }
 
@@ -98,8 +140,12 @@ class LoginViewModel @Inject constructor(
             return
         }
 
-        if (!pw.any { it.isDigit() } || !pw.any { it.isLetter() } || !pw.any() { it.isLetterOrDigit() }) {
-            uiState = uiState.copy(pwError = "영문 + 숫자를 포함해야 합니다.")
+        if (
+            !pw.any { it.isDigit() } ||
+            !pw.any { it.isLetter() } ||
+            !pw.any { !it.isLetterOrDigit() }
+        ) {
+            uiState = uiState.copy(pwError = "영문 + 숫자 + 특수문자를 포함해야 합니다.")
             return
         }
         viewModelScope.launch {
@@ -124,5 +170,6 @@ class LoginViewModel @Inject constructor(
         autoLoginUseCase.setAutoLogin(false)
         autoLoginUseCase.saveUserId(null)
         autoLoginUseCase.savePasswordHash(null)
+        userRepository.clearLoginInfo()
     }
 }

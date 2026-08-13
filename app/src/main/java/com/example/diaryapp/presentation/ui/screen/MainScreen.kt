@@ -13,7 +13,6 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ModalNavigationDrawer
-import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.rememberDrawerState
@@ -43,7 +42,6 @@ import com.example.diaryapp.presentation.ui.component.button.WriteFab
 import com.example.diaryapp.presentation.ui.component.timeline.BottomNavBar
 import com.example.diaryapp.presentation.ui.theme.BackGround
 import com.example.diaryapp.presentation.ui.theme.BoundaryLine
-import com.example.diaryapp.presentation.ui.theme.PrimaryAccent
 import com.example.diaryapp.presentation.viewmodel.DiaryViewModel
 import com.example.diaryapp.presentation.viewmodel.FilterScope
 import com.example.diaryapp.presentation.viewmodel.LoginViewModel
@@ -121,6 +119,12 @@ fun MainScreen(
             ) {
                 DrawerContent(
                     folders = folders,
+                    onClose = { scope.launch { drawerState.close() } },
+                    onWriteDiary = {
+                        scope.launch { drawerState.close() }
+                        diaryViewModel.clearSelected()
+                        appNavController.navigate("editor")
+                    },
                     onFolderClick = { folder ->
                         query = ""
                         scope.launch { drawerState.close() }
@@ -201,28 +205,23 @@ fun MainScreen(
             },
             bottomBar = {
                 if (bottomNavScreen.isNotEmpty()) {
-                    NavigationBar(
-                        containerColor = PrimaryAccent,
-                    ) {
-                        BottomNavBar(
-                            currentRoute = currentRoute,
-                            onNavigate = { route ->
-                                if (currentRoute == route) return@BottomNavBar
-
-                                if (route == Screen.Bottom.Timeline.route) {
-                                    bottomNavController.popBackStack()
-                                } else {
-                                    bottomNavController.navigate(route) {
-                                        popUpTo(bottomNavController.graph.startDestinationId) {
-                                            saveState = true
-                                        }
-                                        launchSingleTop = true
-                                        restoreState = true
+                    BottomNavBar(
+                        currentRoute = currentRoute,
+                        onNavigate = { route ->
+                            if (currentRoute == route) return@BottomNavBar
+                            if (route == Screen.Bottom.Timeline.route) {
+                                bottomNavController.popBackStack()
+                            } else {
+                                bottomNavController.navigate(route) {
+                                    popUpTo(bottomNavController.graph.startDestinationId) {
+                                        saveState = true
                                     }
+                                    launchSingleTop = true
+                                    restoreState = true
                                 }
                             }
-                        )
-                    }
+                        }
+                    )
                 } else {
                     Spacer(modifier = Modifier.height(0.dp))
                 }

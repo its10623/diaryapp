@@ -47,8 +47,6 @@ fun Dialog(
     var input by remember { mutableStateOf("") }
 
     Dialog(onDismissRequest = onDismiss) {
-
-
         Surface(
             shape = RoundedCornerShape(20.dp),
             tonalElevation = 2.dp,

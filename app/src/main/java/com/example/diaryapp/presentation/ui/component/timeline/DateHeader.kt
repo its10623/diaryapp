@@ -8,7 +8,7 @@ import androidx.compose.ui.text.font.FontWeight.Companion.Bold
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.diaryapp.presentation.ui.theme.PrimaryAccent
-import com.example.diaryapp.presentation.ui.theme.inter
+import com.example.diaryapp.presentation.ui.theme.SansFamily
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
@@ -21,7 +21,7 @@ fun DateHeader(
         text = date.format(DateTimeFormatter.ofPattern("yyyy.MM.dd (E)")),
         modifier = Modifier
             .padding(vertical = 6.dp, horizontal = 16.dp),
-        fontFamily = inter,
+        fontFamily = SansFamily,
         fontWeight = Bold,
         fontSize = 20.sp,
         color = PrimaryAccent

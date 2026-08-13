@@ -12,7 +12,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.font.FontWeight.Companion.Black
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.diaryapp.presentation.ui.theme.ButtonText
@@ -20,13 +20,13 @@ import com.example.diaryapp.presentation.ui.theme.DisableButton
 import com.example.diaryapp.presentation.ui.theme.DisableButtonText
 import com.example.diaryapp.presentation.ui.theme.PressedDarkButton
 import com.example.diaryapp.presentation.ui.theme.PrimaryAccent
+import com.example.diaryapp.presentation.ui.theme.SansFamily
 
 @Composable
 fun LoginButton(
     text: String,
     onClick: () -> Unit,
-    enabled: Boolean = true,
-    modifier: Modifier = Modifier
+    enabled: Boolean = true
 ) {
     val interactionSource = remember { MutableInteractionSource() }
     val isPressed by interactionSource.collectIsPressedAsState()
@@ -39,11 +39,7 @@ fun LoginButton(
         interactionSource = interactionSource,
         modifier = Modifier
             .fillMaxWidth(),
-        shape = RoundedCornerShape(12.dp),
-        elevation = ButtonDefaults.buttonElevation(
-            defaultElevation = 8.dp,
-            pressedElevation = 1.dp
-        ),
+        shape = RoundedCornerShape(50.dp),
         colors = ButtonDefaults.buttonColors(
             containerColor = bgColor,
             contentColor = ButtonText,
@@ -53,7 +49,8 @@ fun LoginButton(
     ) {
         Text(
             text = text,
-            fontWeight = Black,
+            fontFamily = SansFamily,
+            fontWeight = FontWeight.ExtraBold,
             fontSize = 16.sp,
             modifier = Modifier
                 .padding(bottom = 1.dp)

@@ -1,57 +1,33 @@
 package com.example.diaryapp.presentation.ui.theme
 
-import android.os.Build
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.darkColorScheme
-import androidx.compose.material3.dynamicDarkColorScheme
-import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
-
-private val DarkColorScheme = darkColorScheme(
-    primary = PrimaryAccent,
-    background = Color.Black,
-    surface = Color(0xFF121212),
-    onPrimary = Color.White,
-    onBackground = Color.White,
-    onSurface = Color.White
-)
 
 private val LightColorScheme = lightColorScheme(
     primary = PrimaryAccent,
     onPrimary = ButtonText,
     background = BackGround,
     onBackground = PrimaryAccent,
-    surface = Color.White,
+    surface = BackGround,
     onSurface = PrimaryAccent,
-    onError = Color(0xFFFF0000),
-    outline = BoundaryLine,
+    surfaceVariant = InputBackground,
+    onSurfaceVariant = TextSub1,
+    outline = Border1,
+    outlineVariant = Border2,
+    error = ErrorColor,
+    onError = Color.White,
     primaryContainer = PrimaryAccent,
     onPrimaryContainer = ButtonText,
 )
 
 @Composable
 fun DiaryAppTheme(
-    darkTheme: Boolean = isSystemInDarkTheme(),
-    // Dynamic color is available on Android 12+
-    dynamicColor: Boolean = false,
     content: @Composable () -> Unit
 ) {
-    val colorScheme = when {
-        dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
-            val context = LocalContext.current
-            if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
-        }
-
-        darkTheme -> DarkColorScheme
-        else -> LightColorScheme
-    }
-
     MaterialTheme(
-        colorScheme = colorScheme,
+        colorScheme = LightColorScheme,
         typography = Typography,
         content = content
     )
