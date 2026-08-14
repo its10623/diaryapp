@@ -4,7 +4,7 @@ import android.widget.Toast
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
@@ -26,7 +26,7 @@ fun FindPasswordFlowScreen(
     val findState = findViewModel.uiState
     val resetState = resetViewModel.uiState
 
-    var step by remember { mutableStateOf(1) }
+    var step by remember { mutableIntStateOf(1) }
 
     LaunchedEffect(Unit) {
         findViewModel.event.collect { event ->
@@ -58,7 +58,8 @@ fun FindPasswordFlowScreen(
                 onValueChange = findViewModel::onIdChange,
                 onClick = findViewModel::checkUserId,
                 onBackClick = onNavigateBack,
-                uiState = findState
+                uiState = findState,
+                stepState = step
             )
         }
 
@@ -70,7 +71,8 @@ fun FindPasswordFlowScreen(
                 onConfirmPasswordChane = resetViewModel::onConfirmPwChange,
                 onClick = resetViewModel::resetPassword,
                 onBackClick = { step = 1 },
-                uiState = resetState
+                uiState = resetState,
+                stepState = step
             )
         }
     }

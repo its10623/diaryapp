@@ -25,12 +25,12 @@ import com.example.diaryapp.presentation.ui.component.textField.IdTextField
 import com.example.diaryapp.presentation.ui.component.button.LoginButton
 import com.example.diaryapp.presentation.ui.theme.BackGround
 import com.example.diaryapp.presentation.ui.theme.Border1
-import com.example.diaryapp.presentation.ui.theme.DiaryAppTheme
 import com.example.diaryapp.presentation.ui.theme.PrimaryAccent
 import com.example.diaryapp.presentation.ui.theme.SansFamily
-import com.example.diaryapp.presentation.ui.theme.TextSub2
 import com.example.diaryapp.presentation.ui.uiState.FindPasswordUiState
 import androidx.compose.foundation.layout.Box
+import androidx.compose.material3.Scaffold
+import com.example.diaryapp.presentation.ui.component.PasswordStep
 
 @Composable
 fun FindPasswordScreen(
@@ -38,15 +38,20 @@ fun FindPasswordScreen(
     onValueChange: (String) -> Unit,
     onClick: () -> Unit,
     onBackClick: () -> Unit,
-    uiState: FindPasswordUiState
+    uiState: FindPasswordUiState,
+    stepState: Int
 ) {
     val focusManager = LocalFocusManager.current
 
-    DiaryAppTheme {
+    Scaffold(
+        modifier = Modifier
+            .fillMaxSize(),
+    ) { paddingValues ->
         Box(
             Modifier
                 .fillMaxSize()
                 .background(BackGround)
+                .padding(paddingValues)
                 .clickable(
                     indication = null,
                     interactionSource = remember { MutableInteractionSource() }
@@ -55,7 +60,6 @@ fun FindPasswordScreen(
                 }
         ) {
             Column(Modifier.fillMaxSize()) {
-                // Header
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -92,15 +96,7 @@ fun FindPasswordScreen(
                     Spacer(Modifier.height(20.dp))
 
                     // Step indicator
-                    Text(
-                        text = "① 계정 확인  ② 재설정",
-                        style = TextStyle(
-                            fontFamily = SansFamily,
-                            fontSize = 12.sp,
-                            color = TextSub2,
-                            letterSpacing = 0.5.sp
-                        )
-                    )
+                    PasswordStep(stepState)
 
                     Spacer(Modifier.height(32.dp))
 

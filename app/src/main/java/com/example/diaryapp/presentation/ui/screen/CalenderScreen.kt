@@ -21,7 +21,6 @@ fun CalenderScreen(
     Scaffold(
         modifier = Modifier
             .fillMaxSize(),
-
     ) { paddingValues ->
         Box(
             modifier = Modifier

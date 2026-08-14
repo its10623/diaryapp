@@ -29,7 +29,6 @@ fun IdTextField(
     label: String,
     isError: Boolean = false,
     errorMessage: String? = null,
-    modifier: Modifier = Modifier
 ) {
     val focusManager = LocalFocusManager.current
 

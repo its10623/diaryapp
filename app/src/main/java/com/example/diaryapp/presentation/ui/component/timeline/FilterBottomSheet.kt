@@ -1,7 +1,9 @@
 package com.example.diaryapp.presentation.ui.component.timeline
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -9,8 +11,10 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Checkbox
@@ -29,9 +33,11 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.diaryapp.presentation.ui.theme.BackGround
+import com.example.diaryapp.presentation.ui.theme.Border1
 import com.example.diaryapp.presentation.ui.theme.PrimaryAccent
 import java.time.LocalDate
 
@@ -62,15 +68,29 @@ fun FilterBottomSheet(
         sheetState = sheetState,
         onDismissRequest = onDismiss,
         containerColor = BackGround,
+        dragHandle = {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 12.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                Box(
+                    modifier = Modifier
+                        .width(40.dp)
+                        .height(4.dp)
+                        .clip(RoundedCornerShape(50.dp))
+                        .background(Border1)
+                )
+            }
+        },
         modifier = Modifier
             .fillMaxWidth()
-
     ) {
         Column(
             modifier = Modifier
                 .padding(20.dp)
         ) {
-
             Text("필터", fontSize = 22.sp)
 
             Spacer(Modifier.height(30.dp))

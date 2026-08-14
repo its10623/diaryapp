@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
@@ -21,6 +22,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.diaryapp.presentation.ui.component.PasswordStep
 import com.example.diaryapp.presentation.ui.component.button.LoginButton
 import com.example.diaryapp.presentation.ui.component.textField.PasswordTextField
 import com.example.diaryapp.presentation.ui.theme.BackGround
@@ -39,15 +41,20 @@ fun ResetPasswordScreen(
     onConfirmPasswordChane: (String) -> Unit,
     onClick: () -> Unit,
     onBackClick: () -> Unit,
-    uiState: ResetPasswordUiState
+    uiState: ResetPasswordUiState,
+    stepState: Int
 ) {
     val focusManager = LocalFocusManager.current
 
-    DiaryAppTheme {
+    Scaffold(
+        modifier = Modifier
+            .fillMaxSize(),
+    ) { paddingValues ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .background(BackGround)
+                .padding(paddingValues)
                 .clickable(
                     indication = null,
                     interactionSource = remember { MutableInteractionSource() }
@@ -85,10 +92,7 @@ fun ResetPasswordScreen(
             ) {
                 Spacer(Modifier.height(20.dp))
 
-                Text(
-                    text = "① 계정 확인  ② 재설정",
-                    style = TextStyle(fontFamily = SansFamily, fontSize = 12.sp, color = TextSub2, letterSpacing = 0.5.sp)
-                )
+                PasswordStep(stepState)
 
                 Spacer(Modifier.height(32.dp))
 

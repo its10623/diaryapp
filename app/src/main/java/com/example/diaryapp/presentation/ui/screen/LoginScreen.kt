@@ -109,7 +109,6 @@ fun LoginScreen(
             ) {
                 Spacer(Modifier.height(60.dp))
 
-                // Logo text (serif italic)
                 Text(
                     text = "모노 다이어리",
                     style = LogoTextStyle,
@@ -122,7 +121,6 @@ fun LoginScreen(
 
                 Spacer(Modifier.height(48.dp))
 
-                // ID field + error
                 IdTextField(
                     value = uiState.userName,
                     onValueChange = viewModel::onIdChange,
@@ -131,7 +129,6 @@ fun LoginScreen(
                     errorMessage = uiState.idError
                 )
 
-                // PW field + error
                 PasswordTextField(
                     value = uiState.password,
                     onValueChange = viewModel::onPwChange,
@@ -142,7 +139,6 @@ fun LoginScreen(
 
                 Spacer(Modifier.height(16.dp))
 
-                // Auto-login checkbox (right-aligned)
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.End,

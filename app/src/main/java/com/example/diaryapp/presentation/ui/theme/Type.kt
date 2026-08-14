@@ -67,9 +67,6 @@ val Typography = Typography(
         letterSpacing = 0.08.sp,
     ),
 )
-
-// ── 커스텀 텍스트 스타일 ──────────────────────────────
-
 val LogoTextStyle = TextStyle(
     fontFamily = SerifFamily,
     fontStyle = FontStyle.Italic,
