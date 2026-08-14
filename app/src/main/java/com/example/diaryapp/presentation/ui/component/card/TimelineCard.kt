@@ -1,6 +1,5 @@
 package com.example.diaryapp.presentation.ui.component.card
 
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
@@ -10,8 +9,6 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -22,11 +19,11 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.diaryapp.presentation.ui.theme.BackGround
+import com.example.diaryapp.presentation.ui.component.button.DropDown
+import com.example.diaryapp.presentation.ui.component.button.DropDownItem
 import com.example.diaryapp.presentation.ui.theme.Border1
 import com.example.diaryapp.presentation.ui.theme.DiaryTitleStyle
 import com.example.diaryapp.presentation.ui.theme.LabelTrackingStyle
-import com.example.diaryapp.presentation.ui.theme.PrimaryAccent
 import com.example.diaryapp.presentation.ui.theme.SansFamily
 import com.example.diaryapp.presentation.ui.theme.TextSub2
 
@@ -108,43 +105,14 @@ fun TimelineCard(
                         )
                         .padding(8.dp)
                 )
-                DropdownMenu(
-                    expanded = menuExpanded,
-                    onDismissRequest = onDismiss,
-                    containerColor = BackGround,
-                    border = BorderStroke(1.dp, Border1)
-                ) {
-                    DropdownMenuItem(
-                        text = {
-                            Text(
-                                text = "수정하기",
-                                style = TextStyle(
-                                    fontFamily = SansFamily,
-                                    color = PrimaryAccent
-                                )
-                            )
-                        },
-                        onClick = {
-                            onEdit(diaryId)
-                            onDismiss()
-                        }
+                DropDown(
+                    menuExpanded = menuExpanded,
+                    onDismiss = onDismiss,
+                    items = listOf(
+                        DropDownItem("수정하기") { onEdit(diaryId) },
+                        DropDownItem("삭제하기") { onDelete(diaryId) }
                     )
-                    DropdownMenuItem(
-                        text = {
-                            Text(
-                                text = "삭제하기",
-                                style = TextStyle(
-                                    fontFamily = SansFamily,
-                                    color = PrimaryAccent
-                                )
-                            )
-                        },
-                        onClick = {
-                            onDelete(diaryId)
-                            onDismiss()
-                        }
-                    )
-                }
+                )
             }
         }
     }

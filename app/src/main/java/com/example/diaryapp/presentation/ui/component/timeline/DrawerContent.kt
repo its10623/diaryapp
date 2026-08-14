@@ -38,14 +38,47 @@ import com.example.diaryapp.presentation.ui.theme.TextSub2
 @Composable
 fun DrawerContent(
     folders: List<String>,
+    selectedFolder: String = "",
     onClose: () -> Unit,
     onWriteDiary: () -> Unit,
-    onFolderClick: (String) -> Unit = {},
-    onAddFolder: () -> Unit = {},
-    onTrashed: () -> Unit = {},
-    onSettings: () -> Unit = {},
-    onLogout: () -> Unit = {}
+    onFolderClick: (String) -> Unit,
+    onAddFolder: () -> Unit,
+    onTrashed: () -> Unit,
+    onSettings: () -> Unit,
+    onLogout: () -> Unit,
+    onEditFolderName: (String, String) -> Unit,
+    onDeleteFolder: (String) -> Unit
 ) {
+    var expandedFolder by remember { mutableStateOf<String?>(null) }
+    var folderToDelete by remember { mutableStateOf<String?>(null) }
+    var folderToEdit by remember { mutableStateOf<String?>(null) }
+
+    folderToDelete?.let { folder ->
+        Dialog(
+            title = "$folder 폴더를 삭제하시겠습니까?",
+            isTextField = false,
+            onDismiss = { folderToDelete = null },
+            onConfirm = {
+                onDeleteFolder(folder)
+                folderToDelete = null
+            }
+        )
+    }
+
+    folderToEdit?.let { folder ->
+        Dialog(
+            title = "폴더명 수정",
+            confirmText = "수정",
+            onDismiss = { folderToEdit = null },
+            onConfirm = { newFolder ->
+                if (newFolder.isNotBlank()) {
+                    onEditFolderName(folder, newFolder)
+                }
+                folderToEdit = null
+            }
+        )
+    }
+
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -113,18 +146,45 @@ fun DrawerContent(
             // Folder items (text only, no icons)
             folders.forEach { folder ->
                 item {
-                    Text(
-                        text = folder,
-                        style = TextStyle(
-                            fontFamily = SansFamily,
-                            fontSize = 15.sp,
-                            color = PrimaryAccent
-                        ),
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 20.dp, vertical = 12.dp)
-                            .clickable { onFolderClick(folder) }
-                    )
+                    val isSelected = selectedFolder == folder
+                    Box(modifier = Modifier.fillMaxWidth()) {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 12.dp, vertical = 4.dp)
+                                .clip(RoundedCornerShape(50.dp))
+                                .background(if (isSelected) PrimaryAccent else Color.Transparent)
+                                .combinedClickable(
+                                    onClick = { onFolderClick(folder) },
+                                    onLongClick = { expandedFolder = folder }
+                                )
+                                .padding(horizontal = 16.dp, vertical = 12.dp)
+                        ) {
+                            Text(
+                                text = folder,
+                                style = TextStyle(
+                                    fontFamily = SansFamily,
+                                    fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
+                                    fontSize = 14.sp,
+                                    color = if (isSelected) ButtonText else PrimaryAccent
+                                )
+                            )
+                        }
+                        DropDown(
+                            menuExpanded = expandedFolder == folder,
+                            onDismiss = { expandedFolder = null },
+                            items = listOf(
+                                DropDownItem("수정하기") {
+                                    expandedFolder = null
+                                    folderToEdit = folder
+                                },
+                                DropDownItem("삭제하기") {
+                                    expandedFolder = null
+                                    folderToDelete = folder
+                                }
+                            )
+                        )
+                    }
                 }
             }
 
