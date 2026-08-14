@@ -53,12 +53,19 @@ class DiaryRepositoryImpl @Inject constructor(
     override fun filterByDate(userName: String, start: Long, end: Long): Flow<List<Diary>> =
         diaryDao.filterByDate(userName, start, end).map { it.map { entity -> entity.toDomain() } }
 
-    override suspend fun renameFolder(userName: String, oldName: String, newName: String) =
+    override suspend fun renameFolder(userName: String, oldName: String, newName: String) {
         folderDao.renameFolder(userName, oldName, newName)
+        folderDao.renameFolderEntry(userName, oldName, newName)
+    }
 
     override suspend fun addFolder(userName: String, folderName: String) =
         folderDao.insertFolder(FolderEntity(userName = userName, name = folderName))
 
     override suspend fun folderExists(userName: String, folderName: String): Boolean =
         folderDao.folderExists(userName, folderName)
+
+    override suspend fun deleteFolder(userName: String, folderName: String) {
+        folderDao.clearFolderFromDiaries(userName, folderName)
+        folderDao.deleteFolder(userName, folderName)
+    }
 }

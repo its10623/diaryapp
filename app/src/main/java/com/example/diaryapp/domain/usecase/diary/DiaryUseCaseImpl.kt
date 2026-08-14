@@ -67,4 +67,9 @@ class DiaryUseCaseImpl @Inject constructor(
         }
         diaryRepository.addFolder(userName, folderName)
     }
+
+    override suspend fun deleteFolder(userName: String, folderName: String) {
+        diaryRepository.deleteFolder(userName, folderName)
+    }
+
 }

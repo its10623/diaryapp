@@ -18,4 +18,5 @@ interface DiaryUseCase {
     fun getFolders(userName: String): Flow<List<String>>
     suspend fun renameFolder(userName: String, oldName: String, newName: String)
     suspend fun addFolder(userName: String, folderName: String)
+    suspend fun deleteFolder(userName: String, folderName: String)
 }

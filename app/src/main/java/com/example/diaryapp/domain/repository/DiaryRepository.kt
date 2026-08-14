@@ -19,4 +19,5 @@ interface DiaryRepository {
     suspend fun renameFolder(userName: String, oldName: String, newName: String)
     suspend fun addFolder(userName: String, folderName: String)
     suspend fun folderExists(userName: String, folderName: String): Boolean
+    suspend fun deleteFolder(userName: String, folderName: String)
 }

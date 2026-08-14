@@ -288,6 +288,26 @@ class DiaryViewModel @Inject constructor(
         }
     }
 
+    fun deleteFolder(userName: String, folderName: String) {
+        viewModelScope.launch {
+            try {
+                diaryUseCase.deleteFolder(userName, folderName)
+            } catch (e: Exception) {
+                _errorMessage.value = e.message
+            }
+        }
+    }
+
+    fun renameFolder(userName: String, oldName: String, newName: String) {
+        viewModelScope.launch {
+            try {
+                diaryUseCase.renameFolder(userName, oldName, newName)
+            } catch (e: Exception) {
+                _errorMessage.value = e.message
+            }
+        }
+    }
+
     fun setFilterScope(scope: FilterScope) {
         _currentFilterScope.value = scope
     }

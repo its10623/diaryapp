@@ -18,7 +18,7 @@ interface FolderDao {
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun insertFolder(folder: FolderEntity)
 
-    @Query("SELECT EXISTS(SELECT 1 FROM folders WHERE userName = :userName AND name = :folderName LIMIT 1)") // New method
+    @Query("SELECT EXISTS(SELECT 1 FROM folders WHERE userName = :userName AND name = :folderName LIMIT 1)")
     suspend fun folderExists(userName: String, folderName: String): Boolean
 
     @Query(
@@ -30,4 +30,13 @@ interface FolderDao {
            OR content LIKE '%' || :keyword || '%')"""
     )
     fun searchInFolder(userName: String, folder: String, keyword: String): Flow<List<DiaryEntity>>
+
+    @Query("DELETE FROM folders WHERE userName = :userName AND name = :folderName")
+    suspend fun deleteFolder(userName: String, folderName: String)
+
+    @Query("UPDATE diary SET folder = '' WHERE userName = :userName AND folder = :folderName")
+    suspend fun clearFolderFromDiaries(userName: String, folderName: String)
+
+    @Query("UPDATE folders SET name = :newName WHERE userName = :userName AND name = :oldName")
+    suspend fun renameFolderEntry(userName: String, oldName: String, newName: String)
 }
