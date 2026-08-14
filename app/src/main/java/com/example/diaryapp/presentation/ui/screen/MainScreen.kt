@@ -61,6 +61,15 @@ fun MainScreen(
     val currentRoute = currentBackStack?.destination?.route
 
     var showAddFolderDialog by remember { mutableStateOf(false) }
+    var selectedFolder by remember { mutableStateOf("") }
+
+    // 시스템 뒤로가기로 라우트 변경 시 selectedFolder 동기화
+    LaunchedEffect(currentRoute) {
+        when (currentRoute) {
+            Screen.Bottom.Timeline.route -> selectedFolder = ""
+            Screen.Favorites.route -> selectedFolder = "즐겨찾기"
+        }
+    }
 
     // 검색
     var searchVisible by remember { mutableStateOf(false) }
@@ -119,6 +128,7 @@ fun MainScreen(
             ) {
                 DrawerContent(
                     folders = folders,
+                    selectedFolder = selectedFolder,
                     onClose = { scope.launch { drawerState.close() } },
                     onWriteDiary = {
                         scope.launch { drawerState.close() }
@@ -126,6 +136,7 @@ fun MainScreen(
                         appNavController.navigate("editor")
                     },
                     onFolderClick = { folder ->
+                        selectedFolder = folder
                         query = ""
                         scope.launch { drawerState.close() }
                         if (folder == "즐겨찾기") {
@@ -139,8 +150,8 @@ fun MainScreen(
                             }
                         } else {
                             bottomNavController.navigate("folder/$folder") {
-                                popUpTo("folder/{folder}") {
-                                    inclusive = true
+                                popUpTo(Screen.Bottom.Timeline.route) {
+                                    inclusive = false
                                 }
                                 launchSingleTop = true
                             }
@@ -169,7 +180,17 @@ fun MainScreen(
                     },
                     onSettings = {
                         scope.launch { drawerState.close() }
-                        // 미 구현
+                        // 미구현
+                    },
+                    onEditFolderName = { oldFolder, newFolder ->
+                        diaryViewModel.renameFolder(userName, oldFolder, newFolder)
+                    },
+
+                    onDeleteFolder = { folder ->
+                        diaryViewModel.deleteFolder(userName, folder)
+                        if (currentRoute == "folder/{folder}" && selectedFolder == folder) {
+                            bottomNavController.popBackStack(Screen.Bottom.Timeline.route, inclusive = false)
+                        }
                     }
                 )
             }
@@ -206,7 +227,11 @@ fun MainScreen(
             bottomBar = {
                 if (bottomNavScreen.isNotEmpty()) {
                     BottomNavBar(
-                        currentRoute = currentRoute,
+                        currentRoute = when {
+                            currentRoute == "folder/{folder}" -> Screen.Bottom.Timeline.route
+                            currentRoute == Screen.Favorites.route -> Screen.Bottom.Timeline.route
+                            else -> currentRoute
+                        },
                         onNavigate = { route ->
                             if (currentRoute == route) return@BottomNavBar
                             if (route == Screen.Bottom.Timeline.route) {

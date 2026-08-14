@@ -3,6 +3,7 @@ package com.example.diaryapp.presentation.ui.component.timeline
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -19,7 +20,10 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -28,6 +32,8 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.diaryapp.presentation.ui.component.button.DropDown
+import com.example.diaryapp.presentation.ui.component.button.DropDownItem
 import com.example.diaryapp.presentation.ui.theme.BackGround
 import com.example.diaryapp.presentation.ui.theme.Border1
 import com.example.diaryapp.presentation.ui.theme.ButtonText
@@ -120,30 +126,29 @@ fun DrawerContent(
         HorizontalDivider(color = Border1)
 
         LazyColumn(modifier = Modifier.weight(1f)) {
-            // 즐겨찾기 pill - black filled
             item {
+                val isFavSelected = selectedFolder == "즐겨찾기"
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(horizontal = 20.dp, vertical = 8.dp)
+                        .padding(horizontal = 12.dp, vertical = 4.dp)
                         .clip(RoundedCornerShape(50.dp))
-                        .background(PrimaryAccent)
+                        .background(if (isFavSelected) PrimaryAccent else Color.Transparent)
                         .clickable { onFolderClick("즐겨찾기") }
-                        .padding(horizontal = 16.dp, vertical = 10.dp)
+                        .padding(horizontal = 16.dp, vertical = 12.dp)
                 ) {
                     Text(
                         text = "즐겨찾기",
                         style = TextStyle(
                             fontFamily = SansFamily,
-                            fontWeight = FontWeight.Bold,
+                            fontWeight = if (isFavSelected) FontWeight.Bold else FontWeight.Normal,
                             fontSize = 14.sp,
-                            color = ButtonText
+                            color = if (isFavSelected) ButtonText else PrimaryAccent
                         )
                     )
                 }
             }
 
-            // Folder items (text only, no icons)
             folders.forEach { folder ->
                 item {
                     val isSelected = selectedFolder == folder
@@ -188,7 +193,6 @@ fun DrawerContent(
                 }
             }
 
-            // Divider
             item {
                 HorizontalDivider(
                     color = Border1,
@@ -196,7 +200,6 @@ fun DrawerContent(
                 )
             }
 
-            // Settings items
             item {
                 Text(
                     text = "설정",
@@ -204,7 +207,7 @@ fun DrawerContent(
                         fontFamily = SansFamily,
                         fontWeight = FontWeight.Normal,
                         fontSize = 14.sp,
-                        color = TextSub2
+                        color = PrimaryAccent
                     ),
                     modifier = Modifier
                         .fillMaxWidth()
@@ -219,7 +222,7 @@ fun DrawerContent(
                         fontFamily = SansFamily,
                         fontWeight = FontWeight.Normal,
                         fontSize = 14.sp,
-                        color = TextSub2
+                        color = PrimaryAccent
                     ),
                     modifier = Modifier
                         .fillMaxWidth()
@@ -234,7 +237,7 @@ fun DrawerContent(
                         fontFamily = SansFamily,
                         fontWeight = FontWeight.Normal,
                         fontSize = 14.sp,
-                        color = TextSub2
+                        color = PrimaryAccent
                     ),
                     modifier = Modifier
                         .fillMaxWidth()
@@ -244,7 +247,6 @@ fun DrawerContent(
             }
         }
 
-        // Bottom buttons (fixed at bottom)
         Column(
             modifier = Modifier.padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp)
